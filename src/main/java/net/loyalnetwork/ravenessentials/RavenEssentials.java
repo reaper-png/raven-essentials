@@ -44,5 +44,6 @@ public class RavenEssentials {
         commands.register(new GameModeCommand());
         commands.register(new VanishCommand());
         commands.register(new Title());
+        commands.register(new Teleport());
     }
 }

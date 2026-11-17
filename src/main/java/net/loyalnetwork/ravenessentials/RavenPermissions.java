@@ -45,6 +45,9 @@ public final class RavenPermissions {
     @Permission(description = "Use /gm")
     public static final String GAMEMODE = "ravenessentials.gamemode";
 
+    @Permission(description = "Use /tp")
+    public static final String TP = "ravenessentials.tp";
+
     @Permission(description = "Use /title")
     public static final String TITLE = "ravenessentials.title";
 
