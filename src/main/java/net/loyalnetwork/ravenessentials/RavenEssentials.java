@@ -27,6 +27,7 @@ public class RavenEssentials {
         permissions.declare(RavenPermissions.class);
 
         Vanish.ATTACHMENTS.register(modEventBus);
+        God.ATTACHMENTS.register(modEventBus);
 
         var commands = CoffeeLib.commands(modContainer);
         commands.register(new Hat());
@@ -45,5 +46,17 @@ public class RavenEssentials {
         commands.register(new VanishCommand());
         commands.register(new Title());
         commands.register(new Teleport());
+        commands.register(new Speed());
+        commands.register(new Spawn());
+        commands.register(new Slime());
+        commands.register(new Skull());
+        commands.register(new Repair());
+        commands.register(new Potion());
+        commands.register(new Ping());
+        commands.register(new Online());
+        commands.register(new NightVision());
+        commands.register(new Trash());
+        commands.register(new Heal());
+        commands.register(new God());
     }
 }

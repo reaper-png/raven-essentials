@@ -45,6 +45,48 @@ public final class RavenPermissions {
     @Permission(description = "Use /gm")
     public static final String GAMEMODE = "ravenessentials.gamemode";
 
+    @Permission(description = "Use /speed")
+    public static final String SPEED = "ravenessentials.speed";
+
+    @Permission(description = "Use /spawn")
+    public static final String SPAWN = "ravenessentials.spawn";
+
+    @Permission(description = "Use /slime")
+    public static final String SLIME = "ravenessentials.slime";
+
+    @Permission(description = "Use /skull")
+    public static final String SKULL = "ravenessentials.skull";
+
+    @Permission(description = "Use /repair")
+    public static final String REPAIR = "ravenessentials.repair";
+
+    @Permission(description = "Use /potion")
+    public static final String POTION = "ravenessentials.potion";
+
+    @Permission(description = "Use /ping")
+    public static final String PING = "ravenessentials.ping";
+
+    @Permission(description = "Use /online")
+    public static final String ONLINE = "ravenessentials.online";
+
+    @Permission(description = "Use /nightvision")
+    public static final String NIGHTVISION = "ravenessentials.nightvision";
+
+    @Permission(description = "Use /trash")
+    public static final String TRASH = "ravenessentials.trash";
+
+    @Permission(description = "Use /heal")
+    public static final String HEAL = "ravenessentials.heal";
+
+    @Permission(description = "Use /heal on other players")
+    public static final String HEAL_OTHERS = "ravenessentials.heal.others";
+
+    @Permission(description = "Use /god")
+    public static final String GOD = "ravenessentials.god";
+
+    @Permission(description = "Use /god on other players")
+    public static final String GOD_OTHERS = "ravenessentials.god.others";
+
     @Permission(description = "Use /tp")
     public static final String TP = "ravenessentials.tp";
 

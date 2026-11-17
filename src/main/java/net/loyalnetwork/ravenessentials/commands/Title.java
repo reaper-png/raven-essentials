@@ -30,14 +30,14 @@ import java.util.Map;
 @EventBusSubscriber(modid = RavenEssentials.MODID)
 public class Title {
 
-    private static final String ALL = "todos";
+    private static final String ALL = "all";
     private static final String SUBTITLE_SEPARATOR = "\\n";
 
     private static final int FADE_IN = 10;
     private static final int STAY = 70;
     private static final int FADE_OUT = 20;
 
-    // /title <jogador|todos> <título>[\n<subtítulo>]
+    // /title <jogador|all> <título>[\n<subtítulo>]
     @Command(value = "title", permission = RavenPermissions.TITLE)
     void title(
             CommandSourceStack source,
