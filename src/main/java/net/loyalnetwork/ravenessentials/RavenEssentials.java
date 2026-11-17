@@ -43,5 +43,6 @@ public class RavenEssentials {
         commands.register(new Enchant());
         commands.register(new GameModeCommand());
         commands.register(new VanishCommand());
+        commands.register(new Title());
     }
 }
