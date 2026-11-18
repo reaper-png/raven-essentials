@@ -5,7 +5,7 @@ import net.loyalnetwork.coffeelib.api.command.annotation.Command;
 import net.loyalnetwork.coffeelib.api.command.annotation.Suggest;
 import net.loyalnetwork.coffeelib.api.command.exception.CommandException;
 import net.loyalnetwork.ravenessentials.RavenPermissions;
-import net.minecraft.network.chat.Component;
+import net.loyalnetwork.ravenessentials.util.Messages;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
 
@@ -22,9 +22,7 @@ public class GameModeCommand {
         };
 
         if (player.setGameMode(gameType)) {
-            player.sendSystemMessage(
-                    Component.literal("Modo de jogo alterado para " + gameType.getName() + ".")
-            );
+            Messages.send(player, "Modo de jogo alterado para " + gameType.getName() + ".");
         }
     }
 }

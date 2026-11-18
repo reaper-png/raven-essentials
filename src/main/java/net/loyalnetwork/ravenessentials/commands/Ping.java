@@ -1,12 +1,15 @@
 package net.loyalnetwork.ravenessentials.commands;
 
+import net.loyalnetwork.coffeelib.api.command.CommandSource;
 import net.loyalnetwork.coffeelib.api.command.annotation.Arg;
 import net.loyalnetwork.coffeelib.api.command.annotation.Command;
 import net.loyalnetwork.coffeelib.api.command.annotation.Default;
 import net.loyalnetwork.coffeelib.api.command.annotation.Suggest;
 import net.loyalnetwork.ravenessentials.RavenPermissions;
+import net.loyalnetwork.ravenessentials.util.Messages;
+import net.loyalnetwork.ravenessentials.util.Players;
+import net.loyalnetwork.ravenessentials.util.Targets;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Collection;
@@ -17,13 +20,11 @@ public class Ping {
     @Command(value = "ping", permission = RavenPermissions.PING)
     void ping(CommandSourceStack source, @Arg("player") @Default("") @Suggest(provider = "online") String name) {
         ServerPlayer target = Targets.resolve(source, name, null);
-        int latency = target.connection.latency();
-
-        String who = target == source.getPlayer() ? "Seu ping" : "Ping de " + target.getGameProfile().getName();
-        source.sendSystemMessage(Component.literal(who + ": " + latency + " ms"));
+        String who = Targets.isSelf(source, target) ? "Seu ping" : "Ping de " + Players.name(target);
+        Messages.send(source, who + ": " + target.connection.latency() + " ms");
     }
 
-    Collection<String> online() {
-        return Targets.onlineNames();
+    Collection<String> online(CommandSource source) {
+        return Targets.onlineNames(source);
     }
 }

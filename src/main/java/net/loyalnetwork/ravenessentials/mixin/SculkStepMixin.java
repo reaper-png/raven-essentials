@@ -2,7 +2,6 @@ package net.loyalnetwork.ravenessentials.mixin;
 
 import net.loyalnetwork.ravenessentials.vanish.Vanish;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SculkSensorBlock;
@@ -22,7 +21,7 @@ public abstract class SculkStepMixin {
 
     @Inject(method = "stepOn", at = @At("HEAD"), cancellable = true)
     private void ravenessentials$ignoreVanishedStep(Level level, BlockPos pos, BlockState state, Entity entity, CallbackInfo ci) {
-        if (entity instanceof ServerPlayer player && Vanish.isVanished(player)) {
+        if (Vanish.isVanished(entity)) {
             ci.cancel();
         }
     }

@@ -38,10 +38,9 @@ public abstract class MinecraftServerMixin {
 
     @Inject(method = "buildPlayerStatus", at = @At("HEAD"), cancellable = true)
     private void ravenessentials$hideVanishedFromStatus(CallbackInfoReturnable<ServerStatus.Players> cir) {
-        List<ServerPlayer> all = getPlayerList().getPlayers();
-        List<ServerPlayer> list = all.stream().filter(player -> !Vanish.isVanished(player)).toList();
+        List<ServerPlayer> list = Vanish.visiblePlayers(getPlayerList());
 
-        if (list.size() == all.size()) return; // ninguém em vanish: segue o vanilla
+        if (list.size() == getPlayerList().getPlayerCount()) return; // ninguém em vanish: segue o vanilla
 
         int max = getMaxPlayers();
         if (hidesOnlinePlayers()) {

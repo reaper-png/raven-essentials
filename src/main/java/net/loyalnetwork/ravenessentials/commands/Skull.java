@@ -1,13 +1,16 @@
 package net.loyalnetwork.ravenessentials.commands;
 
 import com.mojang.authlib.properties.PropertyMap;
+import net.loyalnetwork.coffeelib.api.command.CommandSource;
 import net.loyalnetwork.coffeelib.api.command.annotation.Arg;
 import net.loyalnetwork.coffeelib.api.command.annotation.Command;
 import net.loyalnetwork.coffeelib.api.command.annotation.Default;
 import net.loyalnetwork.coffeelib.api.command.annotation.Suggest;
 import net.loyalnetwork.ravenessentials.RavenPermissions;
+import net.loyalnetwork.ravenessentials.util.Messages;
+import net.loyalnetwork.ravenessentials.util.Players;
+import net.loyalnetwork.ravenessentials.util.Targets;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -21,7 +24,7 @@ public class Skull {
     // /skull [player]   sem nome = a própria cabeça. Funciona com jogadores offline pelo nome.
     @Command(value = "skull", permission = RavenPermissions.SKULL)
     void skull(ServerPlayer player, @Arg("player") @Default("") @Suggest(provider = "online") String name) {
-        String owner = name.isEmpty() ? player.getGameProfile().getName() : name;
+        String owner = name.isEmpty() ? Players.name(player) : name;
         ServerPlayer online = player.server.getPlayerList().getPlayerByName(owner);
 
         // Jogador online: perfil completo, com a skin. Offline: só o nome, o cliente busca a skin.
@@ -32,11 +35,11 @@ public class Skull {
         ItemStack head = new ItemStack(Items.PLAYER_HEAD);
         head.set(DataComponents.PROFILE, profile);
 
-        player.getInventory().placeItemBackInInventory(head);
-        player.sendSystemMessage(Component.literal("Você recebeu a cabeça de " + owner + "."));
+        Players.give(player, head);
+        Messages.send(player, "Você recebeu a cabeça de " + owner + ".");
     }
 
-    Collection<String> online() {
-        return Targets.onlineNames();
+    Collection<String> online(CommandSource source) {
+        return Targets.onlineNames(source);
     }
 }

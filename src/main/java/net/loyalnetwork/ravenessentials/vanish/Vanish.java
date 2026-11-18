@@ -1,23 +1,20 @@
 package net.loyalnetwork.ravenessentials.vanish;
 
-import com.mojang.serialization.Codec;
-import net.loyalnetwork.coffeelib.api.permission.PermissionManager;
-import net.loyalnetwork.ravenessentials.RavenEssentials;
+import net.loyalnetwork.ravenessentials.RavenAttachments;
 import net.loyalnetwork.ravenessentials.RavenPermissions;
+import net.loyalnetwork.ravenessentials.util.Permissions;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
-import net.neoforged.neoforge.attachment.AttachmentType;
-import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 /**
  * Estado do vanish. Fica salvo nos dados do jogador (sobrevive a relog, morte e restart),
@@ -26,42 +23,40 @@ import java.util.function.Supplier;
  */
 public final class Vanish {
 
-    public static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
-            DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, RavenEssentials.MODID);
-
-    public static final Supplier<AttachmentType<Boolean>> VANISHED = ATTACHMENTS.register(
-            "vanished",
-            () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).copyOnDeath().build()
-    );
-
     private Vanish() {
     }
 
-    public static boolean isVanished(ServerPlayer player) {
-        return player.getData(VANISHED);
+    /** Se é um jogador em vanish. Aceita qualquer entidade (ou null) para os eventos e mixins. */
+    public static boolean isVanished(@Nullable Entity entity) {
+        return entity instanceof ServerPlayer player && player.getData(RavenAttachments.VANISHED);
     }
 
     /** Se {@code viewer} pode ver {@code target}: sempre, a não ser que o alvo esteja em vanish e o viewer não tenha a permissão de ver. */
     public static boolean canSee(ServerPlayer viewer, ServerPlayer target) {
-        return viewer == target || !isVanished(target) || has(viewer, RavenPermissions.VANISH_SEE);
+        return viewer == target || !isVanished(target) || Permissions.has(viewer, RavenPermissions.VANISH_SEE);
     }
 
-    public static boolean has(Object subject, String node) {
-        PermissionManager permissions = RavenEssentials.permissions();
-        return permissions != null && permissions.has(subject, node);
+    /** Em vanish, sem a permissão de pegar itens: não pega itens, XP nem flechas. */
+    public static boolean blocksPickup(@Nullable Entity entity) {
+        return isVanished(entity) && !Permissions.has(entity, RavenPermissions.VANISH_PICKUP);
+    }
+
+    /** Jogadores que não estão em vanish (contagem pública, lista do servidor...). */
+    public static List<ServerPlayer> visiblePlayers(PlayerList players) {
+        return players.getPlayers().stream().filter(player -> !isVanished(player)).toList();
     }
 
     /** Liga ou desliga o vanish e atualiza na hora o que os outros jogadores veem. */
     public static void setVanished(ServerPlayer player, boolean vanished) {
         if (isVanished(player) == vanished) return;
 
-        player.setData(VANISHED, vanished);
+        player.setData(RavenAttachments.VANISHED, vanished);
 
         var server = player.getServer();
         if (server == null) return;
 
         for (ServerPlayer other : server.getPlayerList().getPlayers()) {
-            if (other == player || has(other, RavenPermissions.VANISH_SEE)) continue;
+            if (other == player || Permissions.has(other, RavenPermissions.VANISH_SEE)) continue;
 
             if (vanished) {
                 other.connection.send(new ClientboundPlayerInfoRemovePacket(List.of(player.getUUID())));
@@ -91,7 +86,16 @@ public final class Vanish {
         return null;
     }
 
-    /** Envia a mensagem só para quem pode ver o jogador em vanish (a equipe). */
+    /** Envia o pacote só para quem pode ver {@code target} (incluindo ele mesmo). */
+    public static void sendPacketToViewers(PlayerList players, ServerPlayer target, Packet<?> packet) {
+        for (ServerPlayer viewer : players.getPlayers()) {
+            if (canSee(viewer, target)) {
+                viewer.connection.send(packet);
+            }
+        }
+    }
+
+    /** Envia a mensagem só para quem pode ver o jogador em vanish (a equipe) e para o console. */
     public static void sendToViewers(ServerPlayer vanished, Component message) {
         var server = vanished.getServer();
         if (server == null) return;
@@ -103,5 +107,22 @@ public final class Vanish {
                 other.sendSystemMessage(message);
             }
         }
+    }
+
+    /**
+     * Anúncio público sobre {@code player} (morte, conquista, entrada...): se ele está em vanish,
+     * {@code hiddenMessage} vai só para a equipe; senão roda o anúncio vanilla.
+     */
+    public static void announce(ServerPlayer player, Component hiddenMessage, Runnable vanillaBroadcast) {
+        if (isVanished(player)) {
+            sendToViewers(player, hiddenMessage);
+        } else {
+            vanillaBroadcast.run();
+        }
+    }
+
+    /** A mensagem com " (vanish)" no fim, para a equipe saber que só ela viu. */
+    public static Component tagged(Component message) {
+        return message.copy().append(" (vanish)");
     }
 }

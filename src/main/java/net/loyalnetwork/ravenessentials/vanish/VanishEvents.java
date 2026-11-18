@@ -1,10 +1,7 @@
 package net.loyalnetwork.ravenessentials.vanish;
 
 import net.loyalnetwork.ravenessentials.RavenEssentials;
-import net.loyalnetwork.ravenessentials.RavenPermissions;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
+import net.loyalnetwork.ravenessentials.util.Messages;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.util.TriState;
@@ -21,22 +18,16 @@ public final class VanishEvents {
     private VanishEvents() {
     }
 
-    private static boolean blocksPickup(Object entity) {
-        return entity instanceof ServerPlayer player
-                && Vanish.isVanished(player)
-                && !Vanish.has(player, RavenPermissions.VANISH_PICKUP);
-    }
-
     @SubscribeEvent
     public static void onItemPickup(ItemEntityPickupEvent.Pre event) {
-        if (blocksPickup(event.getPlayer())) {
+        if (Vanish.blocksPickup(event.getPlayer())) {
             event.setCanPickup(TriState.FALSE);
         }
     }
 
     @SubscribeEvent
     public static void onXpPickup(PlayerXpEvent.PickupXp event) {
-        if (blocksPickup(event.getEntity())) {
+        if (Vanish.blocksPickup(event.getEntity())) {
             event.setCanceled(true);
         }
     }
@@ -44,7 +35,7 @@ public final class VanishEvents {
     // Sculk sensor, shrieker e warden não sentem vibrações de quem está em vanish.
     @SubscribeEvent
     public static void onGameEvent(VanillaGameEvent event) {
-        if (event.getCause() instanceof ServerPlayer player && Vanish.isVanished(player)) {
+        if (Vanish.isVanished(event.getCause())) {
             event.setCanceled(true);
         }
     }
@@ -52,7 +43,7 @@ public final class VanishEvents {
     // Não pisoteia terra arada.
     @SubscribeEvent
     public static void onTrample(BlockEvent.FarmlandTrampleEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player && Vanish.isVanished(player)) {
+        if (Vanish.isVanished(event.getEntity())) {
             event.setCanceled(true);
         }
     }
@@ -60,18 +51,16 @@ public final class VanishEvents {
     // Mobs não miram em quem está em vanish.
     @SubscribeEvent
     public static void onTarget(LivingChangeTargetEvent event) {
-        if (event.getNewAboutToBeSetTarget() instanceof ServerPlayer player && Vanish.isVanished(player)) {
+        if (Vanish.isVanished(event.getNewAboutToBeSetTarget())) {
             event.setNewAboutToBeSetTarget(null);
         }
     }
 
     @SubscribeEvent
     public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player && Vanish.isVanished(player)) {
-            player.sendSystemMessage(
-                    Component.literal("Você entrou em vanish e está invisível para os outros jogadores.")
-                            .withStyle(ChatFormatting.GRAY)
-            );
+        if (Vanish.isVanished(event.getEntity())) {
+            event.getEntity().sendSystemMessage(
+                    Messages.info("Você entrou em vanish e está invisível para os outros jogadores."));
         }
     }
 }

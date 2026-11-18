@@ -1,71 +1,57 @@
 package net.loyalnetwork.ravenessentials.commands;
 
-import com.mojang.serialization.Codec;
+import net.loyalnetwork.coffeelib.api.command.CommandSource;
 import net.loyalnetwork.coffeelib.api.command.annotation.Arg;
 import net.loyalnetwork.coffeelib.api.command.annotation.Command;
 import net.loyalnetwork.coffeelib.api.command.annotation.Default;
 import net.loyalnetwork.coffeelib.api.command.annotation.Suggest;
+import net.loyalnetwork.ravenessentials.RavenAttachments;
 import net.loyalnetwork.ravenessentials.RavenEssentials;
 import net.loyalnetwork.ravenessentials.RavenPermissions;
-import net.minecraft.ChatFormatting;
+import net.loyalnetwork.ravenessentials.util.Messages;
+import net.loyalnetwork.ravenessentials.util.Players;
+import net.loyalnetwork.ravenessentials.util.Targets;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.food.FoodConstants;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = RavenEssentials.MODID)
 public class God {
-
-    public static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
-            DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, RavenEssentials.MODID);
-
-    // Salvo no jogador: continua ligado depois de relog e restart.
-    public static final Supplier<AttachmentType<Boolean>> GOD = ATTACHMENTS.register(
-            "god",
-            () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).copyOnDeath().build()
-    );
 
     // /god [player]
     @Command(value = "god", permission = RavenPermissions.GOD)
     void god(CommandSourceStack source, @Arg("player") @Default("") @Suggest(provider = "online") String name) {
         ServerPlayer target = Targets.resolve(source, name, RavenPermissions.GOD_OTHERS);
 
-        boolean enabled = !target.getData(GOD);
-        target.setData(GOD, enabled);
-
-        Component status = enabled
-                ? Component.literal("Modo god ativado").withStyle(ChatFormatting.GREEN)
-                : Component.literal("Modo god desativado").withStyle(ChatFormatting.RED);
-
-        target.sendSystemMessage(status);
-        if (target != source.getPlayer()) {
-            source.sendSystemMessage(status.copy().append(Component.literal(" para " + target.getGameProfile().getName())));
-        }
+        boolean enabled = !isGod(target);
+        target.setData(RavenAttachments.GOD, enabled);
+        Messages.toggled(source, target, "Modo god", enabled);
     }
 
-    Collection<String> online() {
-        return Targets.onlineNames();
+    Collection<String> online(CommandSource source) {
+        return Targets.onlineNames(source);
     }
 
-    public static boolean isGod(ServerPlayer player) {
-        return player.getData(GOD);
+    /** Se é um jogador em modo god. Aceita qualquer entidade (ou null) para os eventos e mixins. */
+    public static boolean isGod(@Nullable Entity entity) {
+        return entity instanceof ServerPlayer player && player.getData(RavenAttachments.GOD);
     }
 
     // Bloqueia todo dano, inclusive o que ignora invulnerabilidade (void, /kill).
     @SubscribeEvent
     public static void onDamage(LivingIncomingDamageEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player && isGod(player)) {
+        if (isGod(event.getEntity())) {
             event.setCanceled(true);
         }
     }
@@ -73,36 +59,32 @@ public class God {
     // Última garantia: se algo chegar a matar, a morte é cancelada e a vida volta cheia.
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onDeath(LivingDeathEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player && isGod(player)) {
+        if (isGod(event.getEntity()) && event.getEntity() instanceof ServerPlayer player) {
             event.setCanceled(true);
-            player.setData(GOD, false); // libera o setHealth para preencher
+            player.setData(RavenAttachments.GOD, false); // libera o setHealth para preencher
             player.setHealth(player.getMaxHealth());
-            player.setData(GOD, true);
+            player.setData(RavenAttachments.GOD, true);
         }
     }
 
     // Em god a fome não cai, e quem cai no void volta para o spawn em vez de cair para sempre.
     @SubscribeEvent
-    public static void onTick(net.neoforged.neoforge.event.tick.PlayerTickEvent.Post event) {
-        if (!(event.getEntity() instanceof ServerPlayer player) || !isGod(player)) return;
+    public static void onTick(PlayerTickEvent.Post event) {
+        if (!isGod(event.getEntity()) || !(event.getEntity() instanceof ServerPlayer player)) return;
 
         var food = player.getFoodData();
-        if (food.getFoodLevel() < 20) food.setFoodLevel(20);
+        if (food.getFoodLevel() < FoodConstants.MAX_FOOD) food.setFoodLevel(FoodConstants.MAX_FOOD);
 
         if (player.getY() < player.level().getMinBuildHeight() - 64) {
-            var overworld = player.server.overworld();
-            var spawn = overworld.getSharedSpawnPos();
-            player.fallDistance = 0;
-            player.teleportTo(overworld, spawn.getX() + 0.5, spawn.getY(), spawn.getZ() + 0.5,
-                    overworld.getSharedSpawnAngle(), 0F);
-            player.sendSystemMessage(Component.literal("Você caiu no void e voltou para o spawn.").withStyle(ChatFormatting.GRAY));
+            Players.teleportToSpawn(player);
+            player.sendSystemMessage(Messages.info("Você caiu no void e voltou para o spawn."));
         }
     }
 
     @SubscribeEvent
     public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player && player.getData(GOD)) {
-            player.sendSystemMessage(Component.literal("Você está em modo god.").withStyle(ChatFormatting.GRAY));
+        if (isGod(event.getEntity())) {
+            event.getEntity().sendSystemMessage(Messages.info("Você está em modo god."));
         }
     }
 }

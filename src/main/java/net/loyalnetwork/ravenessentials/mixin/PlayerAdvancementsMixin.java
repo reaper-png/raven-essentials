@@ -26,10 +26,6 @@ public abstract class PlayerAdvancementsMixin {
             )
     )
     private void ravenessentials$silentAdvancement(PlayerList list, Component message, boolean bypassHiddenChat) {
-        if (Vanish.isVanished(player)) {
-            Vanish.sendToViewers(player, message);
-        } else {
-            list.broadcastSystemMessage(message, bypassHiddenChat);
-        }
+        Vanish.announce(player, message, () -> list.broadcastSystemMessage(message, bypassHiddenChat));
     }
 }

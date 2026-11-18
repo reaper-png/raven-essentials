@@ -5,22 +5,22 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
-/** Esconde os jogadores em vanish do tab list e das mensagens de entrada. */
+/** Esconde os jogadores em vanish do tab list, das mensagens de entrada e dos sons. */
 @Mixin(PlayerList.class)
 public abstract class PlayerListMixin {
 
@@ -53,11 +53,7 @@ public abstract class PlayerListMixin {
     private void ravenessentials$announceToViewers(
             PlayerList self, Packet<?> packet, Connection connection, ServerPlayer joining, CommonListenerCookie cookie
     ) {
-        for (ServerPlayer viewer : self.getPlayers()) {
-            if (Vanish.canSee(viewer, joining)) {
-                viewer.connection.send(packet);
-            }
-        }
+        Vanish.sendPacketToViewers(self, joining, packet);
     }
 
     /*
@@ -71,8 +67,8 @@ public abstract class PlayerListMixin {
             ResourceKey<Level> dimension, Packet<?> packet, CallbackInfo ci
     ) {
         PlayerList self = (PlayerList) (Object) this;
-        ServerPlayer source = except instanceof ServerPlayer player && Vanish.isVanished(player)
-                ? player
+        ServerPlayer source = Vanish.isVanished(except)
+                ? (ServerPlayer) except
                 : except == null ? Vanish.vanishedAt(self, x, y, z, dimension) : null;
 
         if (source == null) return;
@@ -100,10 +96,6 @@ public abstract class PlayerListMixin {
             PlayerList self, Component message, boolean bypassHiddenChat,
             Connection connection, ServerPlayer joining, CommonListenerCookie cookie
     ) {
-        if (Vanish.isVanished(joining)) {
-            Vanish.sendToViewers(joining, message.copy().append(Component.literal(" (vanish)")));
-        } else {
-            self.broadcastSystemMessage(message, bypassHiddenChat);
-        }
+        Vanish.announce(joining, Vanish.tagged(message), () -> self.broadcastSystemMessage(message, bypassHiddenChat));
     }
 }

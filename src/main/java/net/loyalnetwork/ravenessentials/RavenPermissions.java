@@ -12,6 +12,13 @@ public final class RavenPermissions {
     @Permission(description = "Use /fly")
     public static final String FLY = "ravenessentials.fly";
 
+    @Permission(description = "Use /fly on other players")
+    public static final String FLY_OTHERS = "ravenessentials.fly.others";
+
+    // De todos por padrão, para não quebrar o voo de outros mods; negue para barrar.
+    @Permission(def = PermissionDefault.EVERYONE, description = "Fly by means other than /fly (other mods, items)")
+    public static final String FLY_ALLOW = "ravenessentials.fly.allow";
+
     @Permission(description = "Use /clear")
     public static final String CLEAR = "ravenessentials.clear";
 

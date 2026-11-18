@@ -14,11 +14,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin {
 
+    private ServerPlayer ravenessentials$self() {
+        return (ServerPlayer) (Object) this;
+    }
+
     /** O rastreamento de entidades pergunta aqui se deve mandar o jogador para outro cliente. */
     @Inject(method = "broadcastToPlayer", at = @At("HEAD"), cancellable = true)
     private void ravenessentials$hideVanished(ServerPlayer viewer, CallbackInfoReturnable<Boolean> cir) {
-        ServerPlayer self = (ServerPlayer) (Object) this;
-        if (!Vanish.canSee(viewer, self)) {
+        if (!Vanish.canSee(viewer, ravenessentials$self())) {
             cir.setReturnValue(false);
         }
     }
@@ -33,12 +36,7 @@ public abstract class ServerPlayerMixin {
             )
     )
     private void ravenessentials$silentDeath(PlayerList list, Component message, boolean bypassHiddenChat) {
-        ServerPlayer self = (ServerPlayer) (Object) this;
-        if (Vanish.isVanished(self)) {
-            Vanish.sendToViewers(self, message);
-        } else {
-            list.broadcastSystemMessage(message, bypassHiddenChat);
-        }
+        Vanish.announce(ravenessentials$self(), message, () -> list.broadcastSystemMessage(message, bypassHiddenChat));
     }
 
     @Redirect(
@@ -49,12 +47,7 @@ public abstract class ServerPlayerMixin {
             )
     )
     private void ravenessentials$silentDeathTeam(PlayerList list, Player player, Component message) {
-        ServerPlayer self = (ServerPlayer) (Object) this;
-        if (Vanish.isVanished(self)) {
-            Vanish.sendToViewers(self, message);
-        } else {
-            list.broadcastSystemToTeam(player, message);
-        }
+        Vanish.announce(ravenessentials$self(), message, () -> list.broadcastSystemToTeam(player, message));
     }
 
     @Redirect(
@@ -65,11 +58,6 @@ public abstract class ServerPlayerMixin {
             )
     )
     private void ravenessentials$silentDeathOthers(PlayerList list, Player player, Component message) {
-        ServerPlayer self = (ServerPlayer) (Object) this;
-        if (Vanish.isVanished(self)) {
-            Vanish.sendToViewers(self, message);
-        } else {
-            list.broadcastSystemToAllExceptTeam(player, message);
-        }
+        Vanish.announce(ravenessentials$self(), message, () -> list.broadcastSystemToAllExceptTeam(player, message));
     }
 }

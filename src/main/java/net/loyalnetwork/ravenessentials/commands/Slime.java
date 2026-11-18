@@ -2,8 +2,7 @@ package net.loyalnetwork.ravenessentials.commands;
 
 import net.loyalnetwork.coffeelib.api.command.annotation.Command;
 import net.loyalnetwork.ravenessentials.RavenPermissions;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
+import net.loyalnetwork.ravenessentials.util.Messages;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
@@ -18,7 +17,7 @@ public class Slime {
         var level = player.serverLevel();
 
         if (level.dimension() != Level.OVERWORLD) {
-            player.sendSystemMessage(Component.literal("Slime chunks só existem no overworld.").withStyle(ChatFormatting.RED));
+            player.sendSystemMessage(Messages.error("Slime chunks só existem no overworld."));
             return;
         }
 
@@ -26,7 +25,7 @@ public class Slime {
         boolean slimeChunk = WorldgenRandom.seedSlimeChunk(chunk.x, chunk.z, level.getSeed(), SLIME_SALT).nextInt(10) == 0;
 
         player.sendSystemMessage(slimeChunk
-                ? Component.literal("Você está em uma slime chunk!").withStyle(ChatFormatting.GREEN)
-                : Component.literal("Você não está em uma slime chunk.").withStyle(ChatFormatting.RED));
+                ? Messages.success("Você está em uma slime chunk!")
+                : Messages.error("Você não está em uma slime chunk."));
     }
 }

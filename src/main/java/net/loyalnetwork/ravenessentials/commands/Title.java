@@ -1,13 +1,15 @@
 package net.loyalnetwork.ravenessentials.commands;
 
-import com.mojang.brigadier.tree.CommandNode;
+import net.loyalnetwork.coffeelib.api.command.CommandSource;
 import net.loyalnetwork.coffeelib.api.command.annotation.Arg;
 import net.loyalnetwork.coffeelib.api.command.annotation.Command;
 import net.loyalnetwork.coffeelib.api.command.annotation.Greedy;
 import net.loyalnetwork.coffeelib.api.command.annotation.Suggest;
-import net.loyalnetwork.coffeelib.api.command.exception.CommandException;
 import net.loyalnetwork.ravenessentials.RavenEssentials;
 import net.loyalnetwork.ravenessentials.RavenPermissions;
+import net.loyalnetwork.ravenessentials.util.CommandNodes;
+import net.loyalnetwork.ravenessentials.util.Messages;
+import net.loyalnetwork.ravenessentials.util.Targets;
 import net.loyalnetwork.ravenessentials.util.TextFormat;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
@@ -19,18 +21,13 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 @EventBusSubscriber(modid = RavenEssentials.MODID)
 public class Title {
 
-    private static final String ALL = "all";
     private static final String SUBTITLE_SEPARATOR = "\\n";
 
     private static final int FADE_IN = 10;
@@ -44,17 +41,7 @@ public class Title {
             @Arg("target") @Suggest(provider = "targets") String target,
             @Arg("message") @Greedy String message
     ) {
-        List<ServerPlayer> players;
-
-        if (target.equalsIgnoreCase(ALL)) {
-            players = source.getServer().getPlayerList().getPlayers();
-        } else {
-            ServerPlayer player = source.getServer().getPlayerList().getPlayerByName(target);
-            if (player == null) {
-                throw new CommandException("Jogador não encontrado: " + target);
-            }
-            players = List.of(player);
-        }
+        List<ServerPlayer> players = Targets.resolveMany(source, target);
 
         // O jogador digita "\n" literal (barra + n) no chat para separar o subtítulo.
         int split = message.indexOf(SUBTITLE_SEPARATOR);
@@ -70,17 +57,11 @@ public class Title {
             player.connection.send(new ClientboundSetTitleTextPacket(title));
         }
 
-        source.sendSystemMessage(Component.literal("Title enviado para " + players.size() + " jogador(es)."));
+        Messages.send(source, "Title enviado para " + players.size() + " jogador(es).");
     }
 
-    Collection<String> targets() {
-        List<String> names = new ArrayList<>();
-        names.add(ALL);
-        var server = ServerLifecycleHooks.getCurrentServer();
-        if (server != null) {
-            names.addAll(List.of(server.getPlayerNames()));
-        }
-        return names;
+    Collection<String> targets(CommandSource source) {
+        return Targets.onlineNamesAndAll(source);
     }
 
     /**
@@ -89,18 +70,6 @@ public class Title {
      */
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void removeVanillaTitle(RegisterCommandsEvent event) {
-        removeChild(event.getDispatcher().getRoot(), "title");
-    }
-
-    private static void removeChild(CommandNode<?> node, String name) {
-        for (String fieldName : new String[]{"children", "literals", "arguments"}) {
-            try {
-                Field field = CommandNode.class.getDeclaredField(fieldName);
-                field.setAccessible(true);
-                ((Map<?, ?>) field.get(node)).remove(name);
-            } catch (ReflectiveOperationException e) {
-                throw new IllegalStateException("Não foi possível remover o /" + name + " vanilla", e);
-            }
-        }
+        CommandNodes.remove(event.getDispatcher().getRoot(), "title");
     }
 }

@@ -18,8 +18,10 @@ import net.loyalnetwork.coffeelib.api.command.annotation.Greedy;
 import net.loyalnetwork.coffeelib.api.command.exception.CommandException;
 import net.loyalnetwork.ravenessentials.RavenEssentials;
 import net.loyalnetwork.ravenessentials.RavenPermissions;
+import net.loyalnetwork.ravenessentials.util.CommandNodes;
+import net.loyalnetwork.ravenessentials.util.Messages;
+import net.loyalnetwork.ravenessentials.util.Players;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -30,9 +32,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
-import java.lang.reflect.Field;
 import java.util.Locale;
-import java.util.Map;
 
 @EventBusSubscriber(modid = RavenEssentials.MODID)
 public class Teleport {
@@ -52,11 +52,11 @@ public class Teleport {
         double targetY = coordinate(parts[1], player.getY(), false);
         double targetZ = coordinate(parts[2], player.getZ(), true);
 
-        player.teleportTo(level, targetX, targetY, targetZ, player.getYRot(), player.getXRot());
+        Players.teleport(player, level, targetX, targetY, targetZ);
 
-        player.sendSystemMessage(Component.literal(String.format(Locale.ROOT,
+        Messages.send(player, String.format(Locale.ROOT,
                 "Teleportado para %.1f %.1f %.1f em %s.",
-                targetX, targetY, targetZ, level.dimension().location())));
+                targetX, targetY, targetZ, level.dimension().location()));
     }
 
     private static ServerLevel findLevel(ServerPlayer player, String input) {
@@ -100,7 +100,7 @@ public class Teleport {
     /** Tira o /tp vanilla antes da CoffeeLib registrar o nosso. O /teleport vanilla continua. */
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void removeVanillaTp(RegisterCommandsEvent event) {
-        removeChild(event.getDispatcher().getRoot(), "tp");
+        CommandNodes.remove(event.getDispatcher().getRoot(), "tp");
     }
 
     /**
@@ -121,7 +121,7 @@ public class Teleport {
                 .suggests(Teleport::suggest)
                 .build();
 
-        removeChild(tp, "coords");
+        CommandNodes.remove(tp, "coords");
         tp.addChild(replacement);
     }
 
@@ -162,17 +162,5 @@ public class Teleport {
             }
         }
         return token.buildFuture();
-    }
-
-    private static void removeChild(CommandNode<?> node, String name) {
-        for (String fieldName : new String[]{"children", "literals", "arguments"}) {
-            try {
-                Field field = CommandNode.class.getDeclaredField(fieldName);
-                field.setAccessible(true);
-                ((Map<?, ?>) field.get(node)).remove(name);
-            } catch (ReflectiveOperationException e) {
-                throw new IllegalStateException("Não foi possível remover /" + name, e);
-            }
-        }
     }
 }

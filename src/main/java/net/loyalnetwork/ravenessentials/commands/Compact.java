@@ -2,7 +2,8 @@ package net.loyalnetwork.ravenessentials.commands;
 
 import net.loyalnetwork.coffeelib.api.command.annotation.Command;
 import net.loyalnetwork.ravenessentials.RavenPermissions;
-import net.minecraft.network.chat.Component;
+import net.loyalnetwork.ravenessentials.util.Messages;
+import net.loyalnetwork.ravenessentials.util.Players;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
@@ -18,8 +19,6 @@ import java.util.Optional;
 
 public class Compact {
 
-    private static final int INVENTORY_SIZE = 36;
-
     @Command(value = "compact", permission = RavenPermissions.COMPACT)
     void compact(ServerPlayer player) {
         var inventory = player.getInventory();
@@ -28,7 +27,7 @@ public class Compact {
         List<ItemStack> candidates = new ArrayList<>();
 
         // Identifica os itens únicos do inventário.
-        for (int i = 0; i < INVENTORY_SIZE; i++) {
+        for (int i = 0; i < Inventory.INVENTORY_SIZE; i++) {
             var stack = inventory.getItem(i);
 
             if (stack.isEmpty()) continue;
@@ -84,18 +83,13 @@ public class Compact {
 
             // Insere os resultados.
             for (int i = 0; i < crafts; i++) {
-                player.getInventory()
-                        .placeItemBackInInventory(result.copy());
+                Players.give(player, result.copy());
             }
 
             compacted += crafts;
         }
 
-        player.sendSystemMessage(
-                Component.literal(
-                        "Itens compactados: " + compacted
-                )
-        );
+        Messages.send(player, "Itens compactados: " + compacted);
     }
 
     private static Optional<CompactRecipe> findReversibleRecipe(
@@ -205,7 +199,7 @@ public class Compact {
     ) {
         int total = 0;
 
-        for (int i = 0; i < INVENTORY_SIZE; i++) {
+        for (int i = 0; i < Inventory.INVENTORY_SIZE; i++) {
             var stack = inventory.getItem(i);
 
             if (ItemStack.isSameItemSameComponents(target, stack)) {
@@ -221,7 +215,7 @@ public class Compact {
             ItemStack target,
             int amount
     ) {
-        for (int i = 0; i < INVENTORY_SIZE && amount > 0; i++) {
+        for (int i = 0; i < Inventory.INVENTORY_SIZE && amount > 0; i++) {
             var stack = inventory.getItem(i);
 
             if (!ItemStack.isSameItemSameComponents(target, stack)) {
@@ -243,7 +237,7 @@ public class Compact {
     ) {
         int available = 0;
 
-        for (int i = 0; i < INVENTORY_SIZE; i++) {
+        for (int i = 0; i < Inventory.INVENTORY_SIZE; i++) {
             var stack = inventory.getItem(i);
 
             if (stack.isEmpty()) {

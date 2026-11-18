@@ -5,7 +5,8 @@ import net.loyalnetwork.coffeelib.api.command.annotation.Command;
 import net.loyalnetwork.coffeelib.api.command.annotation.Default;
 import net.loyalnetwork.coffeelib.api.command.exception.CommandException;
 import net.loyalnetwork.ravenessentials.RavenPermissions;
-import net.minecraft.network.chat.Component;
+import net.loyalnetwork.ravenessentials.util.Messages;
+import net.loyalnetwork.ravenessentials.util.Players;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
@@ -17,14 +18,14 @@ public class Repair {
     @Command(value = "repair", aliases = "fix", permission = RavenPermissions.REPAIR)
     void repair(ServerPlayer player, @Arg("scope") @Default("hand") Scope scope) {
         if (scope == Scope.HAND) {
-            ItemStack stack = player.getMainHandItem();
+            ItemStack stack = Players.requireHeldItem(player);
             if (!stack.isDamageableItem()) {
                 throw new CommandException("Esse item não pode ser reparado.");
             }
             if (!repair(stack)) {
                 throw new CommandException("Esse item já está inteiro.");
             }
-            player.sendSystemMessage(Component.literal("Item reparado."));
+            Messages.send(player, "Item reparado.");
             return;
         }
 
@@ -34,7 +35,7 @@ public class Repair {
             if (repair(inventory.getItem(i))) repaired++;
         }
 
-        player.sendSystemMessage(Component.literal("Itens reparados: " + repaired));
+        Messages.send(player, "Itens reparados: " + repaired);
     }
 
     private static boolean repair(ItemStack stack) {

@@ -2,7 +2,8 @@ package net.loyalnetwork.ravenessentials.commands;
 
 import net.loyalnetwork.coffeelib.api.command.annotation.Command;
 import net.loyalnetwork.ravenessentials.RavenPermissions;
-import net.minecraft.network.chat.Component;
+import net.loyalnetwork.ravenessentials.util.Messages;
+import net.loyalnetwork.ravenessentials.util.Players;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
@@ -15,8 +16,6 @@ import java.util.List;
 
 public class Smelt {
 
-    private static final int INVENTORY_SIZE = 36;
-
     @Command(value = "smelt", permission = RavenPermissions.SMELT)
     void smelt(ServerPlayer player) {
         ServerLevel level = player.serverLevel();
@@ -25,7 +24,7 @@ public class Smelt {
         List<SmeltEntry> entries = new ArrayList<>();
 
         // Primeiro identifica todos os itens que podem ser derretidos.
-        for (int i = 0; i < INVENTORY_SIZE; i++) {
+        for (int i = 0; i < Inventory.INVENTORY_SIZE; i++) {
             var stack = inventory.getItem(i);
 
             if (stack.isEmpty()) continue;
@@ -80,16 +79,12 @@ public class Smelt {
             inventory.setItem(entry.slot(), ItemStack.EMPTY);
 
             // Insere o resultado no inventário.
-            player.getInventory().placeItemBackInInventory(result);
+            Players.give(player, result);
 
             smelted += amount;
         }
 
-        player.sendSystemMessage(
-                Component.literal(
-                        "Itens derretidos: " + smelted
-                )
-        );
+        Messages.send(player, "Itens derretidos: " + smelted);
     }
 
     private record SmeltEntry(

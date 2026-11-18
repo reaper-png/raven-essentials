@@ -1,7 +1,6 @@
 package net.loyalnetwork.ravenessentials.mixin;
 
 import net.loyalnetwork.ravenessentials.vanish.Vanish;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,7 +13,7 @@ public abstract class EntityMixin {
 
     @Inject(method = "isIgnoringBlockTriggers", at = @At("HEAD"), cancellable = true)
     private void ravenessentials$ignoreTriggersWhileVanished(CallbackInfoReturnable<Boolean> cir) {
-        if ((Object) this instanceof ServerPlayer player && Vanish.isVanished(player)) {
+        if (Vanish.isVanished((Entity) (Object) this)) {
             cir.setReturnValue(true);
         }
     }

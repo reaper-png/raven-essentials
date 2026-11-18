@@ -25,10 +25,6 @@ public abstract class ServerGamePacketListenerImplMixin {
             )
     )
     private void ravenessentials$silentQuit(PlayerList self, Component message, boolean bypassHiddenChat) {
-        if (Vanish.isVanished(player)) {
-            Vanish.sendToViewers(player, message.copy().append(Component.literal(" (vanish)")));
-        } else {
-            self.broadcastSystemMessage(message, bypassHiddenChat);
-        }
+        Vanish.announce(player, Vanish.tagged(message), () -> self.broadcastSystemMessage(message, bypassHiddenChat));
     }
 }

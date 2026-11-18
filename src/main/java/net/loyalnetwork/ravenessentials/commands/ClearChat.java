@@ -2,6 +2,7 @@ package net.loyalnetwork.ravenessentials.commands;
 
 import net.loyalnetwork.coffeelib.api.command.annotation.Command;
 import net.loyalnetwork.ravenessentials.RavenPermissions;
+import net.loyalnetwork.ravenessentials.util.Messages;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,7 +20,7 @@ public class ClearChat {
                 player.sendSystemMessage(Component.empty());
             }
 
-            player.sendSystemMessage(Component.literal("O chat foi limpo pela equipe."));
+            Messages.send(player, "O chat foi limpo pela equipe.");
         }
     }
 }
