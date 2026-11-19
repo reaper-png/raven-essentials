@@ -5,7 +5,9 @@ import net.loyalnetwork.ravenessentials.RavenEssentials;
 import net.loyalnetwork.ravenessentials.core.RavenPermissions;
 import net.loyalnetwork.ravenessentials.util.Messages;
 import net.loyalnetwork.ravenessentials.util.Permissions;
+import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -65,17 +67,50 @@ public final class Flight {
         // Com o /fly ativo não há o que barrar: o bloqueio zeraria o nosso também.
         boolean block = !ours && !Permissions.has(player, RavenPermissions.FLY_ALLOW);
 
-        setModifier(flight, GRANT, ours, 1, AttributeModifier.Operation.ADD_VALUE);
-        setModifier(flight, BLOCK, block, -1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+        boolean changed = setModifier(flight, GRANT, ours, 1, AttributeModifier.Operation.ADD_VALUE);
+        changed |= setModifier(flight, BLOCK, block, -1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 
         if (block) {
             blockLegacyFlight(player);
         }
+
+        // O atributo não chega a clientes que não são NeoForge (veja abilitiesPacket): as habilidades
+        // são reenviadas para o cliente saber na hora que pode, ou não pode mais, voar.
+        if (changed) {
+            player.onUpdateAbilities();
+        }
     }
 
-    private static void setModifier(AttributeInstance attribute, ResourceLocation id, boolean present,
-                                    double amount, AttributeModifier.Operation operation) {
-        if (present == attribute.hasModifier(id)) return;
+    /**
+     * O pacote de habilidades que o cliente recebe, com "pode voar" igual ao {@code mayFly()} do servidor.
+     * <p>
+     * O vanilla monta esse pacote só com {@code abilities.mayfly}, que o /fly não liga (o voo dele vem
+     * do atributo). Um cliente NeoForge também lê o atributo, mas para os outros (vanilla, Fabric...)
+     * o NeoForge tira do pacote os atributos que eles não conhecem, e eles nunca saberiam que podem voar.
+     * Só o pacote muda: {@code abilities.mayfly} no servidor e no save continua como está.
+     */
+    @SuppressWarnings("deprecation")
+    public static ClientboundPlayerAbilitiesPacket abilitiesPacket(ServerPlayer player, Abilities abilities) {
+        boolean mayFly = player.mayFly();
+        if (abilities.mayfly == mayFly) {
+            return new ClientboundPlayerAbilitiesPacket(abilities);
+        }
+
+        Abilities sent = new Abilities();
+        sent.invulnerable = abilities.invulnerable;
+        sent.flying = abilities.flying;
+        sent.mayfly = mayFly;
+        sent.instabuild = abilities.instabuild;
+        sent.mayBuild = abilities.mayBuild;
+        sent.setFlyingSpeed(abilities.getFlyingSpeed());
+        sent.setWalkingSpeed(abilities.getWalkingSpeed());
+        return new ClientboundPlayerAbilitiesPacket(sent);
+    }
+
+    /** Coloca ou tira o modificador. Retorna se mudou algo. */
+    private static boolean setModifier(AttributeInstance attribute, ResourceLocation id, boolean present,
+                                       double amount, AttributeModifier.Operation operation) {
+        if (present == attribute.hasModifier(id)) return false;
 
         if (present) {
             // Transitório: não vai para o save. O estado salvo é o attachment, reaplicado em cada sync.
@@ -83,6 +118,7 @@ public final class Flight {
         } else {
             attribute.removeModifier(id);
         }
+        return true;
     }
 
     /**

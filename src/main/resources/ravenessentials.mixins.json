@@ -4,6 +4,7 @@
   "package": "net.loyalnetwork.ravenessentials.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "fly.ServerPlayerMixin",
     "god.LivingEntityMixin",
     "vanish.AbstractArrowMixin",
     "vanish.EntityMixin",
