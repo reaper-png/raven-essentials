@@ -1,8 +1,8 @@
 package net.loyalnetwork.ravenessentials.fly;
 
-import net.loyalnetwork.ravenessentials.RavenAttachments;
+import net.loyalnetwork.ravenessentials.core.RavenAttachments;
 import net.loyalnetwork.ravenessentials.RavenEssentials;
-import net.loyalnetwork.ravenessentials.RavenPermissions;
+import net.loyalnetwork.ravenessentials.core.RavenPermissions;
 import net.loyalnetwork.ravenessentials.util.Messages;
 import net.loyalnetwork.ravenessentials.util.Permissions;
 import net.minecraft.resources.ResourceLocation;

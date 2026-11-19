@@ -4,15 +4,15 @@
   "package": "net.loyalnetwork.ravenessentials.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "AbstractArrowMixin",
-    "EntityMixin",
-    "LivingEntityMixin",
-    "MinecraftServerMixin",
-    "PlayerAdvancementsMixin",
-    "PlayerListMixin",
-    "SculkStepMixin",
-    "ServerGamePacketListenerImplMixin",
-    "ServerPlayerMixin"
+    "god.LivingEntityMixin",
+    "vanish.AbstractArrowMixin",
+    "vanish.EntityMixin",
+    "vanish.MinecraftServerMixin",
+    "vanish.PlayerAdvancementsMixin",
+    "vanish.PlayerListMixin",
+    "vanish.SculkStepMixin",
+    "vanish.ServerGamePacketListenerImplMixin",
+    "vanish.ServerPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

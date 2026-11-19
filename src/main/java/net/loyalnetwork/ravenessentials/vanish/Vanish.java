@@ -1,7 +1,7 @@
 package net.loyalnetwork.ravenessentials.vanish;
 
-import net.loyalnetwork.ravenessentials.RavenAttachments;
-import net.loyalnetwork.ravenessentials.RavenPermissions;
+import net.loyalnetwork.ravenessentials.core.RavenAttachments;
+import net.loyalnetwork.ravenessentials.core.RavenPermissions;
 import net.loyalnetwork.ravenessentials.util.Permissions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
