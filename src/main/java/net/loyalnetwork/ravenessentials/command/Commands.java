@@ -29,6 +29,7 @@ import net.loyalnetwork.ravenessentials.command.world.Spawn;
 import net.loyalnetwork.ravenessentials.command.world.Teleport;
 import net.loyalnetwork.ravenessentials.fly.FlyCommand;
 import net.loyalnetwork.ravenessentials.god.GodCommand;
+import net.loyalnetwork.ravenessentials.kit.command.KitCommand;
 import net.loyalnetwork.ravenessentials.vanish.VanishCommand;
 import net.loyalnetwork.ravenessentials.util.CurrentDimensionArgument;
 import net.minecraft.server.level.ServerLevel;
@@ -86,6 +87,7 @@ public final class Commands {
         // sistemas
         commands.register(new FlyCommand());
         commands.register(new GodCommand());
+        commands.register(new KitCommand());
         commands.register(new VanishCommand());
     }
 }

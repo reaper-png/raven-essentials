@@ -27,6 +27,8 @@ public final class RavenPermissions {
     public static final String FEED = "ravenessentials.feed";
     public static final String GAMEMODE = "ravenessentials.gamemode";
     public static final String HAT = "ravenessentials.hat";
+    public static final String KIT = "ravenessentials.kit";
+    public static final String KIT_ADMIN = "ravenessentials.kit.admin";
     public static final String LIST = "ravenessentials.list";
     public static final String NIGHTVISION = "ravenessentials.nightvision";
     public static final String ONLINE = "ravenessentials.online";

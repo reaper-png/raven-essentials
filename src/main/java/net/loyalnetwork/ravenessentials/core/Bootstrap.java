@@ -4,6 +4,7 @@ import net.loyalnetwork.coffeelib.neoforge.CoffeeLib;
 import net.loyalnetwork.ravenessentials.command.Commands;
 import net.loyalnetwork.ravenessentials.database.RavenDatabase;
 import net.loyalnetwork.ravenessentials.fly.FlightEvents;
+import net.loyalnetwork.ravenessentials.kit.KitModule;
 import net.loyalnetwork.ravenessentials.util.Permissions;
 import net.loyalnetwork.ravenessentials.vanish.Vanish;
 import net.neoforged.bus.api.IEventBus;
@@ -32,13 +33,18 @@ public final class Bootstrap {
 
         // 4. Serviços para os @Receive dos comandos: os da CoffeeLib (permissões, scheduler,
         //    banco, jogadores) já vêm; os do mod entram aqui, antes dos comandos.
-        CoffeeLib.services(container).register(new RavenServices());
+        var services = CoffeeLib.services(container);
+        services.register(new RavenServices());
 
         // 5. Sistemas que se ligam à CoffeeLib.
         Vanish.install();
-        FlightEvents.install(permissions, CoffeeLib.scheduler(container));
+        var scheduler = CoffeeLib.scheduler(container);
+        FlightEvents.install(permissions, scheduler);
 
-        // 6. Comandos (compilados para o Brigadier no RegisterCommandsEvent).
+        // 6. Kits (precisam do banco aberto). O módulo também é provedor dos @Receive do /kit.
+        services.register(KitModule.install(container, permissions, scheduler));
+
+        // 7. Comandos (compilados para o Brigadier no RegisterCommandsEvent).
         Commands.registerAll(container);
     }
 }

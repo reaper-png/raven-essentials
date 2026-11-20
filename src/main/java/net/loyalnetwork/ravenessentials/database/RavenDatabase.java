@@ -3,19 +3,16 @@ package net.loyalnetwork.ravenessentials.database;
 import net.loyalnetwork.coffeelib.api.database.Database;
 import net.loyalnetwork.coffeelib.database.hibernate.CoffeeHibernate;
 import net.loyalnetwork.coffeelib.neoforge.CoffeeLib;
+import net.loyalnetwork.ravenessentials.core.RavenPaths;
+import net.loyalnetwork.ravenessentials.kit.infrastructure.KitClaimEntity;
+import net.loyalnetwork.ravenessentials.kit.infrastructure.KitEntity;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.loading.FMLPaths;
 import org.hibernate.SessionFactory;
-
-import java.nio.file.Path;
 
 /** Abre o banco e o Hibernate, e guarda os repositórios. Entidade nova: adicione em {@link #ENTITIES}. */
 public final class RavenDatabase {
 
-    // database.yml e o arquivo do banco ficam aqui.
-    private static final Path DIRECTORY = FMLPaths.GAMEDIR.get().resolve("raven/essentials");
-
-    private static final Class<?>[] ENTITIES = {PlayerEntity.class};
+    private static final Class<?>[] ENTITIES = {PlayerEntity.class, KitEntity.class, KitClaimEntity.class};
 
     private static Database database;
     private static SessionFactory sessions;
@@ -25,7 +22,7 @@ public final class RavenDatabase {
     }
 
     public static void open(ModContainer container) {
-        database = CoffeeLib.database(container, DIRECTORY).open();
+        database = CoffeeLib.database(container, RavenPaths.ROOT).open();
         sessions = CoffeeHibernate.sessionFactory(database, ENTITIES);
         playerRepository = new PlayerRepository(sessions, database);
     }

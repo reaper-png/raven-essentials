@@ -9,6 +9,7 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapKeyColumn;
@@ -17,6 +18,8 @@ import net.loyalnetwork.coffeelib.database.location.CoffeeLocation;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -48,13 +51,18 @@ public class PlayerEntity {
     // única por jogador. EAGER: as entidades saem do repository sem sessão, e uma coleção LAZY lida
     // depois disso lançaria LazyInitializationException.
 
+    // Chaves estrangeiras com nome e ON DELETE CASCADE: apagar o jogador apaga o histórico.
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "player_ips", joinColumns = @JoinColumn(name = "player_id"))
+    @CollectionTable(name = "player_ips", joinColumns = @JoinColumn(name = "player_id"),
+            foreignKey = @ForeignKey(name = "fk_player_ips_player"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @MapKeyColumn(name = "ip")
     private Map<String, Usage> ips = new HashMap<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "player_names", joinColumns = @JoinColumn(name = "player_id"))
+    @CollectionTable(name = "player_names", joinColumns = @JoinColumn(name = "player_id"),
+            foreignKey = @ForeignKey(name = "fk_player_names_player"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @MapKeyColumn(name = "name")
     private Map<String, Usage> names = new HashMap<>();
 
