@@ -12,13 +12,18 @@ public final class KitTexts {
     private KitTexts() {
     }
 
-    /** {kit}, {items} e {cooldown} de um kit. */
+    /** {kit}, {id}, {items}, {cooldown} e {uses} de um kit, com ele no contexto (para os {@code %ravenessentials_kit_*%}). */
     public static Placeholders of(Kit kit) {
-        return Placeholders.NONE
+        return Placeholders.NONE.about(kit)
                 .with("kit", kit.appearance().name())
                 .with("id", kit.id().value())
                 .with("items", String.valueOf(kit.items().count()))
-                .with("cooldown", cooldown(kit.rules().cooldown()));
+                .with("cooldown", cooldown(kit.rules().cooldown()))
+                .with("uses", uses(kit.rules().oneTime()));
+    }
+
+    public static String uses(boolean oneTime) {
+        return oneTime ? "uma vez só" : "sem limite";
     }
 
     /** {@link #of(Kit)} e o {remaining} do status. */
@@ -30,13 +35,11 @@ public final class KitTexts {
         if (cooldown.isNone()) {
             return "nenhum";
         }
-        if (cooldown.isOnce()) {
-            return "uma vez só";
-        }
         return time(cooldown.duration());
     }
 
-    private static String remaining(KitStatus status) {
+    /** Quanto falta do cooldown; vazio quando não está em cooldown. */
+    public static String remaining(KitStatus status) {
         return status instanceof KitStatus.OnCooldown cooldown ? time(cooldown.remaining()) : "";
     }
 

@@ -25,4 +25,11 @@ public class KitsConfig {
     public FullInventory inventoryFull = FullInventory.DROP;
 
     public KitMessages messages = new KitMessages();
+
+    @Comment("Placeholders da CoffeeLib, em qualquer texto (de qualquer mod que use a CoffeeLib): "
+            + "%ravenessentials_kits_count%, e com o id do kit no fim: name, id, items, cooldown, uses, "
+            + "e do jogador: status, remaining, times. Ex.: %ravenessentials_kits_remaining_vip%. "
+            + "No singular, sobre o kit do texto (ícone, prévia, mensagens): %ravenessentials_kit_remaining%. "
+            + "Aqui, o que o status mostra")
+    public KitStatusTexts status = new KitStatusTexts();
 }

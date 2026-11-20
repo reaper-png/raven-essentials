@@ -75,7 +75,7 @@ side = "BOTH"
 [[dependencies."${mod_id}"]]
 modId = "coffeelib"
 type = "required"
-versionRange = "[3.10,4)"
+versionRange = "[3.11,4)"
 ordering = "AFTER"
 side = "BOTH"
 # Features are specific properties of the game environment, that you may want to declare you require. This example declares

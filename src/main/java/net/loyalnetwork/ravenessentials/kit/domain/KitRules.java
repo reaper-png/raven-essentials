@@ -5,21 +5,31 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
-/** Quem pode pegar um kit e de quanto em quanto tempo. */
-public record KitRules(Cooldown cooldown, boolean restricted) {
+/**
+ * Quem pode pegar um kit e quando: o cooldown, se é restrito e se é de uma vez só.
+ * <p>
+ * Uma vez só e cooldown valem juntos e independentes: enquanto o kit é de uma vez só, quem
+ * já pegou não pega mais; se deixar de ser, quem já pegou volta a poder depois do cooldown,
+ * contado da última vez que pegou.
+ */
+public record KitRules(Cooldown cooldown, boolean restricted, boolean oneTime) {
 
-    public static final KitRules FREE = new KitRules(Cooldown.NONE, false);
+    public static final KitRules FREE = new KitRules(Cooldown.NONE, false, false);
 
     public KitRules {
         Objects.requireNonNull(cooldown, "cooldown");
     }
 
     KitRules withCooldown(Cooldown newCooldown) {
-        return new KitRules(newCooldown, restricted);
+        return new KitRules(newCooldown, restricted, oneTime);
     }
 
     KitRules toggleRestriction() {
-        return new KitRules(cooldown, !restricted);
+        return new KitRules(cooldown, !restricted, oneTime);
+    }
+
+    KitRules toggleOneTime() {
+        return new KitRules(cooldown, restricted, !oneTime);
     }
 
     ClaimDecision decide(Optional<KitClaim> previous, Instant now) {
@@ -29,12 +39,12 @@ public record KitRules(Cooldown cooldown, boolean restricted) {
     }
 
     private ClaimDecision decideAfter(KitClaim last, Instant now) {
-        Optional<Instant> availableAt = cooldown.availableAfter(last.lastClaim());
-        if (availableAt.isEmpty()) {
+        if (oneTime) {
             return new ClaimDecision.AlreadyClaimed();
         }
-        if (availableAt.get().isAfter(now)) {
-            return new ClaimDecision.OnCooldown(Duration.between(now, availableAt.get()));
+        Instant availableAt = cooldown.availableAfter(last.lastClaim());
+        if (availableAt.isAfter(now)) {
+            return new ClaimDecision.OnCooldown(Duration.between(now, availableAt));
         }
         return new ClaimDecision.Granted(last.next(now), Optional.of(last));
     }

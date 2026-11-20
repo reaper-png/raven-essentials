@@ -57,6 +57,23 @@ public final class KitAdminService {
     }
 
     /**
+     * Troca o id do kit. Quem já pegou continua contando (os registros vão junto), mas o nó
+     * de permissão de um kit restrito muda com o id.
+     */
+    public Kit changeId(KitId from, KitId to) {
+        Kit kit = require(from);
+        if (from.equals(to)) {
+            return kit;
+        }
+        if (catalog.find(to).isPresent()) {
+            throw new KitException("Já existe um kit chamado " + to + ".");
+        }
+        Kit moved = kit.withId(to);
+        catalog.rename(from, moved);
+        return moved;
+    }
+
+    /**
      * Exclui o kit. Os registros de quem já pegou vão junto (o {@link KitCatalog} garante),
      * então um kit novo com o mesmo nome começa do zero.
      */

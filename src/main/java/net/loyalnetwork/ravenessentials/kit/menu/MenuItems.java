@@ -80,7 +80,7 @@ public final class MenuItems {
 
     // Nome e descrição de item saem em itálico por padrão: desligado, para o texto sair como na config.
     private static Component line(String text, Placeholders values, ServerPlayer viewer) {
-        return TEXT.parse(values.apply(text), viewer).withStyle(style -> style.withItalic(false));
+        return TEXT.parse(values.apply(text), viewer, values.context()).withStyle(style -> style.withItalic(false));
     }
 
     private static Item material(String id) {

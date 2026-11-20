@@ -90,20 +90,37 @@ public final class CachedKitCatalog implements KitCatalog {
         enqueue(id, () -> repository.deleteById(id.value()));
     }
 
-    private void enqueue(KitId id, Supplier<CompletableFuture<?>> write) {
-        CompletableFuture<?> previous = writes.getOrDefault(id, CompletableFuture.completedFuture(null));
-        CompletableFuture<?> next = previous
-                .handle((ignored, error) -> null)
-                .thenCompose(ignored -> write.get())
-                .whenComplete((ignored, error) -> logFailure(id, error));
-        writes.put(id, next);
-        // Tira da fila quando termina, se ninguém entrou atrás (na thread do servidor, como o resto).
-        next.whenComplete((ignored, error) -> scheduler.onMain(() -> writes.remove(id, next)));
+    @Override
+    public void rename(KitId from, Kit renamed) {
+        kits.remove(from);
+        kits.put(renamed.id(), renamed);
+        KitEntity row = KitEntity.from(renamed, codec);
+        // Nas filas dos dois ids: espera o que ainda falta gravar do antigo, e o que vier para o novo espera esta.
+        enqueue(List.of(from, renamed.id()), () -> repository.rename(from.value(), row));
     }
 
-    private static void logFailure(KitId id, Throwable error) {
+    private void enqueue(KitId id, Supplier<CompletableFuture<?>> write) {
+        enqueue(List.of(id), write);
+    }
+
+    private void enqueue(List<KitId> ids, Supplier<CompletableFuture<?>> write) {
+        CompletableFuture<?>[] previous = ids.stream()
+                .map(id -> writes.getOrDefault(id, CompletableFuture.completedFuture(null)))
+                .map(future -> future.handle((ignored, error) -> null))
+                .toArray(CompletableFuture[]::new);
+        CompletableFuture<?> next = CompletableFuture.allOf(previous)
+                .thenCompose(ignored -> write.get())
+                .whenComplete((ignored, error) -> logFailure(ids, error));
+        for (KitId id : ids) {
+            writes.put(id, next);
+            // Tira da fila quando termina, se ninguém entrou atrás (na thread do servidor, como o resto).
+            next.whenComplete((ignored, error) -> scheduler.onMain(() -> writes.remove(id, next)));
+        }
+    }
+
+    private static void logFailure(List<KitId> ids, Throwable error) {
         if (error != null) {
-            LOGGER.log(Level.SEVERE, "Falha ao gravar o kit " + id, error);
+            LOGGER.log(Level.SEVERE, "Falha ao gravar o kit " + ids, error);
         }
     }
 }

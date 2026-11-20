@@ -69,6 +69,6 @@ public final class ClaimFeedback {
     }
 
     private static void tell(ServerPlayer player, String message, Placeholders values) {
-        player.sendSystemMessage(TEXT.parse(values.apply(message), player));
+        player.sendSystemMessage(TEXT.parse(values.apply(message), player, values.context()));
     }
 }

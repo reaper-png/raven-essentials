@@ -10,18 +10,21 @@ import net.loyalnetwork.ravenessentials.database.RavenDatabase;
 import net.loyalnetwork.ravenessentials.kit.application.KitAdminService;
 import net.loyalnetwork.ravenessentials.kit.application.KitClaimService;
 import net.loyalnetwork.ravenessentials.kit.infrastructure.CachedKitCatalog;
+import net.loyalnetwork.ravenessentials.kit.infrastructure.CachedKitClaims;
 import net.loyalnetwork.ravenessentials.kit.infrastructure.InventoryDelivery;
 import net.loyalnetwork.ravenessentials.kit.infrastructure.ItemCodec;
 import net.loyalnetwork.ravenessentials.kit.infrastructure.KitClaimRepository;
 import net.loyalnetwork.ravenessentials.kit.infrastructure.KitRepository;
 import net.loyalnetwork.ravenessentials.kit.menu.ClaimFeedback;
 import net.loyalnetwork.ravenessentials.kit.menu.KitListMenu;
+import net.loyalnetwork.ravenessentials.kit.menu.KitPlaceholders;
 import net.loyalnetwork.ravenessentials.kit.menu.KitPreviewMenu;
 import net.loyalnetwork.ravenessentials.kit.menu.admin.ChatPrompts;
 import net.loyalnetwork.ravenessentials.kit.menu.admin.KitAdminMenu;
 import net.loyalnetwork.ravenessentials.kit.menu.config.KitsConfig;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
@@ -56,11 +59,13 @@ public final class KitModule {
         ItemCodec codec = new ItemCodec(() -> ServerLifecycleHooks.getCurrentServer().registryAccess());
         CachedKitCatalog catalog = new CachedKitCatalog(
                 new KitRepository(RavenDatabase.sessions(), RavenDatabase.database()), codec, scheduler);
-        KitClaimRepository history = new KitClaimRepository(RavenDatabase.sessions(), RavenDatabase.database());
+        // Os registros passam pela cópia em memória de quem está online (para os placeholders).
+        CachedKitClaims history = new CachedKitClaims(
+                new KitClaimRepository(RavenDatabase.sessions(), RavenDatabase.database()));
 
         InventoryDelivery delivery = new InventoryDelivery(() -> config.inventoryFull);
-        KitClaimService claims = new KitClaimService(catalog, history, delivery, scheduler, permissions::has,
-                Clock.systemUTC());
+        KitClaimService claims = new KitClaimService(catalog, history, history, delivery, scheduler,
+                permissions::has, Clock.systemUTC());
         KitAdminService administration = new KitAdminService(catalog, history, delivery, scheduler);
 
         NeoForgeMenus menus = CoffeeLib.menus(container);
@@ -71,6 +76,13 @@ public final class KitModule {
         // Os itens precisam dos registros do servidor: os kits só carregam com ele de pé.
         NeoForge.EVENT_BUS.addListener((ServerStartedEvent event) -> catalog.load());
         NeoForge.EVENT_BUS.register(prompts);
+        NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent event) ->
+                history.preload(event.getEntity().getUUID()));
+        NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedOutEvent event) ->
+                history.evict(event.getEntity().getUUID()));
+
+        // %ravenessentials_kits_<placeholder>_<kit>% (namespace = id do mod).
+        CoffeeLib.placeholders(container).register(new KitPlaceholders(claims, config));
 
         return new KitModule(claims, administration,
                 new KitListMenu(claims, config, menus, preview, feedback),

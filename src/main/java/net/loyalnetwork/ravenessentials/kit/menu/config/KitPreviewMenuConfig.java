@@ -16,7 +16,7 @@ public class KitPreviewMenuConfig {
     public String title = "&8Kit {kit}";
 
     @Comment("Itens da última fileira (slots 45 a 53). action: NONE, CLOSE, BACK, CLAIM. "
-            + "Placeholders: {kit}, {items}, {cooldown}, {remaining}")
+            + "Placeholders: {kit}, {id}, {items}, {cooldown}, {uses}, {remaining}")
     public Map<String, MenuItem> items = defaults();
 
     private static Map<String, MenuItem> defaults() {

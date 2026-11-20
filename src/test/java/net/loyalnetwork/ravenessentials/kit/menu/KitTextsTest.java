@@ -27,7 +27,12 @@ class KitTextsTest {
     @Test
     void cooldownComoTexto() {
         assertEquals("nenhum", KitTexts.cooldown(Cooldown.NONE));
-        assertEquals("uma vez só", KitTexts.cooldown(Cooldown.ONCE));
         assertEquals("1d 12h", KitTexts.cooldown(Cooldown.parse("1d 12h")));
+    }
+
+    @Test
+    void usosComoTexto() {
+        assertEquals("uma vez só", KitTexts.uses(true));
+        assertEquals("sem limite", KitTexts.uses(false));
     }
 }

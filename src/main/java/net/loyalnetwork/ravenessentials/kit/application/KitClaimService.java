@@ -32,6 +32,7 @@ public final class KitClaimService {
 
     private final KitCatalog catalog;
     private final KitClaims claims;
+    private final KnownClaims known;
     private final KitDelivery delivery;
     private final Scheduler scheduler;
     private final BiPredicate<ServerPlayer, String> permissions;
@@ -39,10 +40,11 @@ public final class KitClaimService {
     // Um pedido por jogador: dois cliques seguidos não abrem duas transações.
     private final Set<UUID> claiming = ConcurrentHashMap.newKeySet();
 
-    public KitClaimService(KitCatalog catalog, KitClaims claims, KitDelivery delivery, Scheduler scheduler,
-                      BiPredicate<ServerPlayer, String> permissions, Clock clock) {
+    public KitClaimService(KitCatalog catalog, KitClaims claims, KnownClaims known, KitDelivery delivery,
+                           Scheduler scheduler, BiPredicate<ServerPlayer, String> permissions, Clock clock) {
         this.catalog = catalog;
         this.claims = claims;
+        this.known = known;
         this.delivery = delivery;
         this.scheduler = scheduler;
         this.permissions = permissions;
@@ -70,10 +72,26 @@ public final class KitClaimService {
     }
 
     private List<KitOffer> offers(ServerPlayer player, PlayerClaims history) {
+        return catalog.all().stream().map(kit -> offer(player, kit, history)).toList();
+    }
+
+    private KitOffer offer(ServerPlayer player, Kit kit, PlayerClaims history) {
         Predicate<String> has = node -> permissions.test(player, node);
-        return catalog.all().stream()
-                .map(kit -> new KitOffer(kit, kit.statusFor(has, history.of(kit.id()), clock.instant())))
-                .toList();
+        return new KitOffer(kit, kit.statusFor(has, history.of(kit.id()), clock.instant()));
+    }
+
+    /**
+     * {@code id} como {@code player} o vê agora, pelo que já está em memória (sem ir ao banco,
+     * para placeholders). Vazio se o kit não existe ou os registros do jogador não carregaram.
+     */
+    public Optional<KitOffer> offerNow(ServerPlayer player, KitId id) {
+        Optional<PlayerClaims> history = known.known(player.getUUID());
+        return catalog.find(id).flatMap(kit -> history.map(claimsOf -> offer(player, kit, claimsOf)));
+    }
+
+    /** Quantas vezes {@code player} pegou {@code id}, pelo que já está em memória. */
+    public Optional<Integer> timesNow(ServerPlayer player, KitId id) {
+        return known.known(player.getUUID()).map(history -> history.times(id));
     }
 
     /** Entrega {@code id} a {@code player}, se as regras do kit deixarem. */

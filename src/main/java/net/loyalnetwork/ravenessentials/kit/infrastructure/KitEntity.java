@@ -38,12 +38,18 @@ public class KitEntity {
     @Column(nullable = false)
     private String items;
 
-    // -1 = uma vez só, 0 = sem cooldown (Cooldown).
+    // 0 = sem cooldown. Antes do one_time, -1 queria dizer "uma vez só": ver toKit.
     @Column(name = "cooldown_seconds", nullable = false)
     private long cooldownSeconds;
 
     @Column(nullable = false)
     private boolean restricted;
+
+    // Coluna nova: nas linhas que já existiam, o MySQL preenche com 0 (falso).
+    @Column(name = "one_time", nullable = false)
+    private boolean oneTime;
+
+    private static final long LEGACY_ONE_TIME = -1;
 
     static KitEntity from(Kit kit, ItemCodec codec) {
         KitEntity entity = new KitEntity();
@@ -53,6 +59,7 @@ public class KitEntity {
         entity.items = codec.encode(kit.items());
         entity.cooldownSeconds = kit.rules().cooldown().seconds();
         entity.restricted = kit.rules().restricted();
+        entity.oneTime = kit.rules().oneTime();
         return entity;
     }
 
@@ -60,8 +67,17 @@ public class KitEntity {
         return Kit.restore(
                 new KitId(id),
                 new KitAppearance(displayName, codec.decode(icon)),
-                new KitRules(new Cooldown(cooldownSeconds), restricted),
+                rules(),
                 codec.decode(items, id));
+    }
+
+    // Uma linha de antes do one_time com -1 vira "uma vez só, sem cooldown"; a próxima
+    // gravação do kit já sai no formato novo.
+    private KitRules rules() {
+        if (cooldownSeconds == LEGACY_ONE_TIME) {
+            return new KitRules(Cooldown.NONE, restricted, true);
+        }
+        return new KitRules(new Cooldown(cooldownSeconds), restricted, oneTime);
     }
 
     String id() {

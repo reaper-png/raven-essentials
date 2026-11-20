@@ -7,7 +7,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -19,12 +18,6 @@ class CooldownTest {
     @ValueSource(strings = {"0", "nenhum", "none", " NENHUM "})
     void semCooldown(String input) {
         assertTrue(Cooldown.parse(input).isNone());
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"uma-vez", "uma vez", "once", "UMA-VEZ"})
-    void umaVezSo(String input) {
-        assertTrue(Cooldown.parse(input).isOnce());
     }
 
     @ParameterizedTest
@@ -40,27 +33,28 @@ class CooldownTest {
         assertEquals(seconds, Cooldown.parse(input).seconds());
     }
 
+    // "Uma vez só" virou uma regra à parte (KitRules.oneTime): não é mais um cooldown.
     @ParameterizedTest
-    @ValueSource(strings = {"abc", "10x", "1h banana", "", "-5", "1.5h"})
+    @ValueSource(strings = {"abc", "10x", "1h banana", "", "-5", "1.5h", "uma-vez", "once"})
     void textoInvalidoERecusado(String input) {
         assertThrows(KitException.class, () -> Cooldown.parse(input));
     }
 
     @Test
-    void segundosNegativosAlemDeUmaVezSaoRecusados() {
-        assertThrows(KitException.class, () -> new Cooldown(-2));
+    void segundosNegativosSaoRecusados() {
+        assertThrows(KitException.class, () -> new Cooldown(-1));
     }
 
     @Test
-    void duracaoDeUmaVezSoEZero() {
-        assertEquals(Duration.ZERO, Cooldown.ONCE.duration());
+    void duracao() {
         assertEquals(Duration.ofMinutes(5), Cooldown.parse("5m").duration());
+        assertEquals(Duration.ZERO, Cooldown.NONE.duration());
     }
 
     @Test
     void disponivelDepoisDoCooldown() {
         Instant claimed = Instant.parse("2026-01-01T00:00:00Z");
-        assertEquals(Optional.of(claimed.plusSeconds(60)), new Cooldown(60).availableAfter(claimed));
-        assertEquals(Optional.empty(), Cooldown.ONCE.availableAfter(claimed));
+        assertEquals(claimed.plusSeconds(60), new Cooldown(60).availableAfter(claimed));
+        assertEquals(claimed, Cooldown.NONE.availableAfter(claimed));
     }
 }

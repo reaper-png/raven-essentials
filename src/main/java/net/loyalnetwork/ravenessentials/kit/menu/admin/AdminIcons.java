@@ -34,6 +34,7 @@ final class AdminIcons {
                 "&7Id: &f{id}",
                 "&7Itens: &f{items}",
                 "&7Cooldown: &f{cooldown}",
+                "&7Usos: &f{uses}",
                 "&7Acesso: &f" + (kit.rules().restricted() ? "só com " + kit.id().permission() : "todos"));
     }
 }

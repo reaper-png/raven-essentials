@@ -32,7 +32,7 @@ public class KitListMenuConfig {
     @Comment("Nome do item de cada kit. {kit}: o nome do kit")
     public String kitName = "{kit}";
 
-    @Comment("Placeholders: {kit}, {items}, {cooldown}, {remaining}, {action}")
+    @Comment("Placeholders: {kit}, {id}, {items}, {cooldown}, {uses}, {remaining}, {action}")
     public KitLore lore = new KitLore();
 
     @Key("view-hint")

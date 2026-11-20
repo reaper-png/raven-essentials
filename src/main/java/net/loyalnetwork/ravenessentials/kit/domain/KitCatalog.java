@@ -14,6 +14,9 @@ public interface KitCatalog {
     /** Cria ou substitui o kit com o mesmo id. */
     void save(Kit kit);
 
+    /** Troca o id de {@code from} para o de {@code renamed}; os registros de quem já pegou vão junto. */
+    void rename(KitId from, Kit renamed);
+
     /** Exclui o kit; os registros de quem já pegou vão junto. */
     void remove(KitId id);
 }

@@ -12,6 +12,7 @@ public class KitLore {
     public List<String> available = new ArrayList<>(List.of(
             "&7Itens: &f{items}",
             "&7Cooldown: &f{cooldown}",
+            "&7Usos: &f{uses}",
             "",
             "{action}"));
 
@@ -19,6 +20,7 @@ public class KitLore {
     public List<String> cooldown = new ArrayList<>(List.of(
             "&7Itens: &f{items}",
             "&7Cooldown: &f{cooldown}",
+            "&7Usos: &f{uses}",
             "",
             "&cDisponível em &f{remaining}"));
 

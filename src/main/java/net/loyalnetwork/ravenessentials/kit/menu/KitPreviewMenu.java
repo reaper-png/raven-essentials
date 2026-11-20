@@ -59,7 +59,7 @@ public final class KitPreviewMenu {
         }
         MenuItems.place(menu, layout.items, ROWS * 9, values, player, action -> true,
                 action -> act(player, kit, action, back));
-        menu.locked().open(player);
+        menu.context(values.context()).locked().open(player);
     }
 
     private void act(ServerPlayer player, Kit kit, MenuAction action, Runnable back) {

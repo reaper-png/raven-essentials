@@ -54,6 +54,16 @@ public final class Kit {
         return items;
     }
 
+    /**
+     * O mesmo kit com outro id. Um nome que ainda era o padrão (o id antigo) acompanha o id;
+     * um nome escolhido fica.
+     */
+    public Kit withId(KitId newId) {
+        boolean defaultName = appearance.name().equals(id.value());
+        KitAppearance kept = defaultName ? appearance.rename(newId.value()) : appearance;
+        return new Kit(newId, kept, rules, items);
+    }
+
     public Kit rename(String name) {
         return new Kit(id, appearance.rename(name), rules, items);
     }
@@ -72,6 +82,10 @@ public final class Kit {
 
     public Kit toggleRestriction() {
         return new Kit(id, appearance, rules.toggleRestriction(), items);
+    }
+
+    public Kit toggleOneTime() {
+        return new Kit(id, appearance, rules.toggleOneTime(), items);
     }
 
     /** Se quem tem as permissões de {@code hasPermission} pode usar este kit. */

@@ -16,17 +16,19 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.UnaryOperator;
 
-/** As configurações de um kit: itens, ícone, nome, cooldown, acesso e exclusão. */
+/** As configurações de um kit: itens, ícone, nome, id, cooldown, uma vez só, acesso e exclusão. */
 final class KitSettingsMenu {
 
     private static final int SUMMARY = 4;
     private static final int ITEMS = 10;
     private static final int ICON = 11;
     private static final int NAME = 12;
-    private static final int COOLDOWN = 13;
-    private static final int ACCESS = 14;
-    private static final int DELETE = 16;
+    private static final int ID = 13;
+    private static final int COOLDOWN = 14;
+    private static final int ONE_TIME = 15;
+    private static final int ACCESS = 16;
     private static final int BACK = 22;
+    private static final int DELETE = 26;
 
     private final KitAdminService admin;
     private final NeoForgeMenus menus;
@@ -69,12 +71,23 @@ final class KitSettingsMenu {
                                 Kit::rename, reopen))
                 .item(COOLDOWN, AdminIcons.button(player, Items.CLOCK, "&eCooldown",
                         "&7Atual: &f" + KitTexts.cooldown(kit.rules().cooldown()),
-                        "&7Clique e digite no chat:", "&f0&7, &funa-vez&7, &f90&7 (segundos), &f1d 12h&7, &f30m"),
+                        "&7Clique e digite no chat:", "&f0&7, &f90&7 (segundos), &f1d 12h&7, &f30m"),
                         click -> ask(player, id, "Digite o cooldown do kit " + id + ":",
                                 (current, text) -> current.withCooldown(Cooldown.parse(text)), reopen))
+                .item(ONE_TIME, AdminIcons.button(player, Items.TOTEM_OF_UNDYING,
+                        "&eUma vez só: " + (kit.rules().oneTime() ? "&asim" : "&cnão"),
+                        "&7Ligado: quem já pegou não pega mais.",
+                        "&7Desligado: quem já pegou pode de novo",
+                        "&7depois do cooldown, contado da última vez.", "&7Clique para alternar."),
+                        click -> change(player, id, Kit::toggleOneTime, reopen))
                 .item(ACCESS, AdminIcons.button(player, Items.TRIPWIRE_HOOK, "&eAcesso: " + access,
                         "&7Restrito: só quem tem &f" + id.permission() + "&7.", "&7Clique para alternar."),
                         click -> change(player, id, Kit::toggleRestriction, reopen))
+                .item(ID, AdminIcons.button(player, Items.PAPER, "&eId",
+                        "&7Atual: &f" + id, "&7O que se digita no &f/kit claim <id>&7.",
+                        "&7Muda também a permissão: &fravenessentials.kits.<id>&7.",
+                        "&7Quem já pegou continua contando.", "&7Clique e digite no chat."),
+                        click -> askForId(player, id, back, reopen))
                 .item(DELETE, AdminIcons.button(player, Items.LAVA_BUCKET, "&cExcluir",
                         "&7Apaga o kit e quem já pegou."),
                         click -> confirmDelete(player, id, back, reopen))
@@ -102,6 +115,22 @@ final class KitSettingsMenu {
             player.sendSystemMessage(Messages.error(e.getMessage()));
         }
         reopen.run();
+    }
+
+    // Com o id novo, o menu reabre já nele; se não der, volta para o mesmo kit.
+    private void askForId(ServerPlayer player, KitId id, Runnable back, Runnable reopen) {
+        prompts.ask(player, "Digite o novo id do kit " + id + " (letras minúsculas, números, - ou _):",
+                text -> {
+                    try {
+                        Kit moved = admin.changeId(id, KitId.parse(text));
+                        player.sendSystemMessage(Messages.success("Kit " + id + " agora é " + moved.id() + "."));
+                        open(player, moved.id(), back);
+                    } catch (KitException e) {
+                        player.sendSystemMessage(Messages.error(e.getMessage()));
+                        reopen.run();
+                    }
+                },
+                reopen);
     }
 
     private void confirmDelete(ServerPlayer player, KitId id, Runnable back, Runnable reopen) {

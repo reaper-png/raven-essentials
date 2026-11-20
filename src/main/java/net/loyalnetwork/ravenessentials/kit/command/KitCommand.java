@@ -85,7 +85,7 @@ public class KitCommand {
     @Command(value = "kit view", permission = RavenPermissions.KIT)
     @Permission(def = PermissionDefault.EVERYONE, description = "Use /kit")
     void view(CommandSourceStack source,
-              @Arg("kit-ou-jogador") @Default(NONE) @Suggest(provider = "kitsOrPlayers") String first,
+              @Arg("jogador-ou-kit") @Default(NONE) @Suggest(provider = "playersOrKits") String first,
               @Arg("kit") @Default(NONE) @Suggest(provider = "kits") String second) {
         switch (ViewRequest.of(first, second)) {
             case ViewRequest.List all -> list.open(self(source), KitListMode.VIEW);
@@ -212,12 +212,13 @@ public class KitCommand {
         return claims.kits().stream().map(kit -> kit.id().value()).toList();
     }
 
-    Collection<String> kitsOrPlayers(SuggestContext context) {
-        List<String> options = new ArrayList<>(kits(context));
+    // O primeiro do /kit view: jogadores para quem pode abrir para outros (o kit vem depois);
+    // para quem não pode, a única forma é /kit view <kit>, então são os kits.
+    Collection<String> playersOrKits(SuggestContext context) {
         if (Permissions.has(context.source(), RavenPermissions.KIT_VIEW_OTHERS)) {
-            options.addAll(onlinePlayers(context));
+            return onlinePlayers(context);
         }
-        return options;
+        return kits(context);
     }
 
     Collection<String> onlinePlayers(SuggestContext context) {
