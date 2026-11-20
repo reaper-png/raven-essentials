@@ -4,6 +4,7 @@ import net.loyalnetwork.coffeelib.api.text.TextFormatter;
 import net.loyalnetwork.coffeelib.neoforge.CoffeeLib;
 import net.loyalnetwork.ravenessentials.RavenEssentials;
 import net.loyalnetwork.ravenessentials.kit.application.ClaimResult;
+import net.loyalnetwork.ravenessentials.kit.domain.Kit;
 import net.loyalnetwork.ravenessentials.kit.domain.KitStatus;
 import net.loyalnetwork.ravenessentials.kit.menu.config.KitMessages;
 import net.loyalnetwork.ravenessentials.kit.menu.config.KitsConfig;
@@ -38,6 +39,11 @@ public final class ClaimFeedback {
             case ClaimResult.InventoryFull full -> tell(player, messages.inventoryFull, KitTexts.of(full.kit()));
             case ClaimResult.Busy busy -> tell(player, messages.busy, Placeholders.NONE);
         }
+    }
+
+    /** Para quem recebeu um kit pelo {@code /kit give}. */
+    public void received(ServerPlayer player, Kit kit) {
+        tell(player, config.messages.received, KitTexts.of(kit));
     }
 
     private static String refusal(KitMessages messages, KitStatus status) {

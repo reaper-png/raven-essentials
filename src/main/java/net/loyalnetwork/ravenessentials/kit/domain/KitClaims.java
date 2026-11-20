@@ -18,4 +18,10 @@ public interface KitClaims {
 
     /** Desfaz um {@link ClaimDecision.Granted} que não chegou a ser entregue. */
     CompletableFuture<Void> undo(UUID player, KitId kit, ClaimDecision.Granted granted);
+
+    /**
+     * Esquece que {@code player} pegou {@code kit}: o cooldown (ou o "uma vez só") recomeça.
+     * O futuro diz se havia registro.
+     */
+    CompletableFuture<Boolean> reset(UUID player, KitId kit);
 }

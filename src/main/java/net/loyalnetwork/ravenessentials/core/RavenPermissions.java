@@ -29,6 +29,8 @@ public final class RavenPermissions {
     public static final String HAT = "ravenessentials.hat";
     public static final String KIT = "ravenessentials.kit";
     public static final String KIT_ADMIN = "ravenessentials.kit.admin";
+    public static final String KIT_GIVE = "ravenessentials.kit.give";
+    public static final String KIT_RESET = "ravenessentials.kit.reset";
     public static final String LIST = "ravenessentials.list";
     public static final String NIGHTVISION = "ravenessentials.nightvision";
     public static final String ONLINE = "ravenessentials.online";
@@ -58,6 +60,9 @@ public final class RavenPermissions {
     // De todos por padrão, para não quebrar o voo de outros mods; negue para barrar.
     @Permission(def = PermissionDefault.EVERYONE, description = "Fly by means other than /fly (other mods, items)")
     public static final String FLY_ALLOW = "ravenessentials.fly.allow";
+
+    @Permission(description = "Open a kit preview for another player (/kit view <player> <kit>)")
+    public static final String KIT_VIEW_OTHERS = "ravenessentials.kit.view.others";
 
     @Permission(description = "See players who are vanished")
     public static final String VANISH_SEE = "ravenessentials.vanish.see";

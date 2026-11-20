@@ -1,11 +1,15 @@
 package net.loyalnetwork.ravenessentials.kit.menu.config;
 
+import net.loyalnetwork.coffeelib.api.config.annotation.Comment;
 import net.loyalnetwork.coffeelib.api.config.annotation.Key;
 
 /** O que o jogador lê no chat. Placeholders: {kit}, {remaining}, {items}. */
 public class KitMessages {
 
     public String claimed = "&aVocê pegou o kit {kit}&a.";
+
+    @Comment("Quem recebe um kit pelo /kit give")
+    public String received = "&aVocê recebeu o kit {kit}&a.";
 
     public String cooldown = "&cVocê poderá pegar o kit {kit} &cde novo em {remaining}.";
 

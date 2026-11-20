@@ -10,7 +10,7 @@ a partir da página salva em 2026-11-20.
 | Future Ideas | 0/7 |
 
 > **Já existem no mod, mas estão desmarcados no cartão:** `/back`, `/lixeira` (no mod, `/trash`)
-> e seis dos sete comandos de kit (veja [Kits](#kits)).
+> e os sete comandos de kit (veja [Kits](#kits)).
 > Os comandos feitos usam nomes em inglês no mod: `/anvil` (bigorna), `/hat` (chapeu),
 > `/compact` (compactar), `/colors` (cores), `/smelt` (derreter), `/ec` (echest),
 > `/nightvision` (luz), `/repair` (reparar) e `/gm` (gamemode).
@@ -34,13 +34,14 @@ a partir da página salva em 2026-11-20.
 
 ### Kits
 Feitos por menu (ainda desmarcados no cartão): `/kit view` (ou `/kit`, `/kits`) lista os kits e
-mostra os itens de cada um, `/kit claim [kit]` pega, e o `/kit admin` cria, edita (itens, ícone,
-nome, cooldown, acesso) e exclui. Aparência e mensagens em `raven/essentials/kits.yml`.
+mostra os itens de cada um (`/kit view [jogador] <kit>` abre direto a prévia, também para
+outro jogador), `/kit claim [kit]` pega, `/kit give` dá por fora das regras, `/kit reset` zera o
+cooldown, e o `/kit admin` cria, edita (itens, ícone, nome, cooldown, acesso) e exclui. Aparência e mensagens em `raven/essentials/kits.yml`.
 
 - [x] `/criarkit` — Cria um kit. (`/kit admin` → Criar kit)
 - [x] `/kit` — Pega um kit. (`/kit claim [kit]`)
 - [x] `/kits` — Lista todos os kits disponíveis. (`/kit view`)
-- [ ] `/darkit` — Envia um kit para um player.
+- [x] `/darkit` — Envia um kit para um player. (`/kit give <jogador> <kit>`)
 - [x] `/verkit` — Visualiza os itens de um kit. (`/kit view` → clique no kit)
 - [x] `/editarkit` — Edita um kit criado. (`/kit admin` → clique no kit)
 - [x] `/delkit` — Deleta um kit. (`/kit admin` → kit → Excluir)
@@ -146,7 +147,5 @@ nome, cooldown, acesso) e exclui. Aparência e mensagens em `raven/essentials/ki
 - **`/tpa` e similares:** o argumento `ServerPlayer` e o `@OrSelf`, que já respeitam o vanish.
 - **`/seen`:** o `PlayerRepository.findByName` e o histórico do jogador (`firstJoin`, `lastJoin`, `playTime`).
 - **Contagem de homes por permissão:** o `permissions.number(...)` da CoffeeLib.
-- **`/darkit`:** o `KitDelivery` do sistema de kits já entrega um kit a qualquer jogador; falta só
-  o comando (e decidir se conta cooldown).
 - **Menus de homes, warps e afins:** o pacote `kit/menu` (config de menu em YAML, páginas,
   placeholders, prompt por chat) serve de modelo.

@@ -34,13 +34,18 @@ import java.time.Clock;
 public final class KitModule {
 
     private final KitClaimService claims;
+    private final KitAdminService administration;
     private final KitListMenu list;
+    private final KitPreviewMenu preview;
     private final KitAdminMenu admin;
     private final ClaimFeedback feedback;
 
-    private KitModule(KitClaimService claims, KitListMenu list, KitAdminMenu admin, ClaimFeedback feedback) {
+    private KitModule(KitClaimService claims, KitAdminService administration, KitListMenu list,
+                      KitPreviewMenu preview, KitAdminMenu admin, ClaimFeedback feedback) {
         this.claims = claims;
+        this.administration = administration;
         this.list = list;
+        this.preview = preview;
         this.admin = admin;
         this.feedback = feedback;
     }
@@ -53,9 +58,10 @@ public final class KitModule {
                 new KitRepository(RavenDatabase.sessions(), RavenDatabase.database()), codec, scheduler);
         KitClaimRepository history = new KitClaimRepository(RavenDatabase.sessions(), RavenDatabase.database());
 
-        KitClaimService claims = new KitClaimService(catalog, history,
-                new InventoryDelivery(() -> config.inventoryFull), scheduler, permissions::has, Clock.systemUTC());
-        KitAdminService administration = new KitAdminService(catalog);
+        InventoryDelivery delivery = new InventoryDelivery(() -> config.inventoryFull);
+        KitClaimService claims = new KitClaimService(catalog, history, delivery, scheduler, permissions::has,
+                Clock.systemUTC());
+        KitAdminService administration = new KitAdminService(catalog, history, delivery, scheduler);
 
         NeoForgeMenus menus = CoffeeLib.menus(container);
         ClaimFeedback feedback = new ClaimFeedback(config);
@@ -66,8 +72,9 @@ public final class KitModule {
         NeoForge.EVENT_BUS.addListener((ServerStartedEvent event) -> catalog.load());
         NeoForge.EVENT_BUS.register(prompts);
 
-        return new KitModule(claims,
+        return new KitModule(claims, administration,
                 new KitListMenu(claims, config, menus, preview, feedback),
+                preview,
                 new KitAdminMenu(administration, menus, prompts, scheduler),
                 feedback);
     }
@@ -75,6 +82,16 @@ public final class KitModule {
     @Provide
     KitClaimService claims() {
         return claims;
+    }
+
+    @Provide
+    KitAdminService administration() {
+        return administration;
+    }
+
+    @Provide
+    KitPreviewMenu preview() {
+        return preview;
     }
 
     @Provide

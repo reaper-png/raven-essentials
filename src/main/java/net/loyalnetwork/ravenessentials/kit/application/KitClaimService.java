@@ -53,6 +53,11 @@ public final class KitClaimService {
         return catalog.find(id);
     }
 
+    /** Se {@code player} tem acesso a {@code kit} (os restritos pedem a permissão do kit). */
+    public boolean canUse(ServerPlayer player, Kit kit) {
+        return kit.allows(node -> permissions.test(player, node));
+    }
+
     /** Todos os kits (para sugestões de comando, por exemplo). */
     public List<Kit> kits() {
         return catalog.all();
@@ -78,7 +83,7 @@ public final class KitClaimService {
             return done(new ClaimResult.NotFound(id));
         }
         Kit kit = found.get();
-        if (!kit.allows(node -> permissions.test(player, node))) {
+        if (!canUse(player, kit)) {
             return done(new ClaimResult.Refused(kit, new KitStatus.Locked()));
         }
         if (!delivery.accepts(player, kit.items())) {

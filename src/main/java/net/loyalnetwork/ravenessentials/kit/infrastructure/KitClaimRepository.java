@@ -64,6 +64,19 @@ public class KitClaimRepository extends HibernateRepository<KitClaimEntity, KitC
         });
     }
 
+    @Override
+    public CompletableFuture<Boolean> reset(UUID player, KitId kit) {
+        KitClaimKey key = key(player, kit);
+        return write(session -> {
+            KitClaimEntity row = locked(session, key);
+            if (row == null) {
+                return false;
+            }
+            session.remove(row);
+            return true;
+        });
+    }
+
     private static KitClaimEntity locked(Session session, KitClaimKey key) {
         return session.find(KitClaimEntity.class, key, LockModeType.PESSIMISTIC_WRITE);
     }

@@ -5,12 +5,15 @@ import net.loyalnetwork.coffeelib.neoforge.menu.NeoForgeMenus;
 import net.loyalnetwork.ravenessentials.kit.application.ClaimResult;
 import net.loyalnetwork.ravenessentials.kit.application.KitClaimService;
 import net.loyalnetwork.ravenessentials.kit.domain.Kit;
+import net.loyalnetwork.ravenessentials.kit.domain.KitId;
 import net.loyalnetwork.ravenessentials.kit.domain.KitItems;
 import net.loyalnetwork.ravenessentials.kit.menu.config.KitPreviewMenuConfig;
 import net.loyalnetwork.ravenessentials.kit.menu.config.KitsConfig;
 import net.loyalnetwork.ravenessentials.kit.menu.config.MenuAction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+
+import java.util.Optional;
 
 /** Os itens de um kit, só para ver, com os botões da config (pegar, voltar...). */
 public final class KitPreviewMenu {
@@ -27,6 +30,20 @@ public final class KitPreviewMenu {
         this.config = config;
         this.menus = menus;
         this.feedback = feedback;
+    }
+
+    /**
+     * A prévia do kit {@code id}, como se o jogador tivesse clicado nele na lista: um kit que a
+     * lista esconderia ({@code hide-locked}) conta como inexistente. Devolve se abriu.
+     */
+    public boolean open(ServerPlayer player, KitId id, Runnable back) {
+        Optional<Kit> kit = claims.find(id).filter(found -> listedFor(player, found));
+        kit.ifPresent(found -> open(player, found, back));
+        return kit.isPresent();
+    }
+
+    private boolean listedFor(ServerPlayer player, Kit kit) {
+        return !config.menu.hideLocked || claims.canUse(player, kit);
     }
 
     /** {@code back} é para onde o botão de voltar leva (e para onde se vai depois de pegar). */
