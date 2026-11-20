@@ -39,7 +39,7 @@ public final class Messages {
     public static void toggled(CommandSourceStack source, ServerPlayer target, String feature, boolean enabled) {
         Component status = enabled ? success(feature + " ativado") : error(feature + " desativado");
         target.sendSystemMessage(status);
-        if (!Targets.isSelf(source, target)) {
+        if (target != source.getPlayer()) {
             source.sendSystemMessage(status.copy().append(" para " + Players.name(target)));
         }
     }
@@ -47,7 +47,7 @@ public final class Messages {
     /** {@code selfMessage} para o alvo e, se quem rodou foi outro, {@code othersMessage} para quem rodou. */
     public static void notify(CommandSourceStack source, ServerPlayer target, String selfMessage, String othersMessage) {
         send(target, selfMessage);
-        if (!Targets.isSelf(source, target)) {
+        if (target != source.getPlayer()) {
             send(source, othersMessage);
         }
     }

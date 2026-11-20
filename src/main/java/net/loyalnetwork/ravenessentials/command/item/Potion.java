@@ -3,20 +3,19 @@ package net.loyalnetwork.ravenessentials.command.item;
 import net.loyalnetwork.coffeelib.api.command.annotation.Arg;
 import net.loyalnetwork.coffeelib.api.command.annotation.Command;
 import net.loyalnetwork.coffeelib.api.command.annotation.Default;
-import net.loyalnetwork.coffeelib.api.command.annotation.Suggest;
+import net.loyalnetwork.coffeelib.api.command.annotation.Registry;
 import net.loyalnetwork.coffeelib.api.command.exception.CommandException;
 import net.loyalnetwork.ravenessentials.core.RavenPermissions;
 import net.loyalnetwork.ravenessentials.util.Messages;
 import net.loyalnetwork.ravenessentials.util.Players;
-import net.loyalnetwork.ravenessentials.util.RegistryIds;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.PotionContents;
 
-import java.util.Collection;
 
 @Command("potion")
 public class Potion {
@@ -28,7 +27,7 @@ public class Potion {
     @Command(value = "add", permission = RavenPermissions.POTION)
     void add(
             ServerPlayer player,
-            @Arg("effect") @Suggest(provider = "effects") String effectId,
+            @Arg("effect") @Registry("mob_effect") Holder<MobEffect> effect,
             @Arg("level") @Default("1") int level,
             @Arg("seconds") @Default("180") int seconds
     ) {
@@ -40,13 +39,12 @@ public class Potion {
         }
 
         ItemStack stack = heldPotion(player);
-        var effect = RegistryIds.find(player.registryAccess(), Registries.MOB_EFFECT, effectId, "efeito");
 
         int duration = seconds == -1 ? MobEffectInstance.INFINITE_DURATION : seconds * 20;
         PotionContents contents = stack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
         stack.set(DataComponents.POTION_CONTENTS, contents.withEffectAdded(new MobEffectInstance(effect, duration, level - 1)));
 
-        Messages.send(player, "Efeito adicionado: " + effectId + " " + level);
+        Messages.send(player, "Efeito adicionado: " + effect.getRegisteredName() + " " + level);
     }
 
     // /potion clear   tira todos os efeitos da poção.
@@ -63,9 +61,5 @@ public class Potion {
             throw new CommandException("Segure uma poção (ou flecha com efeito) na mão.");
         }
         return stack;
-    }
-
-    Collection<String> effects() {
-        return RegistryIds.vanillaPaths(Registries.MOB_EFFECT);
     }
 }

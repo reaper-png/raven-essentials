@@ -23,12 +23,15 @@ import net.loyalnetwork.ravenessentials.command.player.GameModeCommand;
 import net.loyalnetwork.ravenessentials.command.player.Heal;
 import net.loyalnetwork.ravenessentials.command.player.NightVision;
 import net.loyalnetwork.ravenessentials.command.player.Speed;
+import net.loyalnetwork.ravenessentials.command.world.Back;
 import net.loyalnetwork.ravenessentials.command.world.Slime;
 import net.loyalnetwork.ravenessentials.command.world.Spawn;
 import net.loyalnetwork.ravenessentials.command.world.Teleport;
 import net.loyalnetwork.ravenessentials.fly.FlyCommand;
 import net.loyalnetwork.ravenessentials.god.GodCommand;
 import net.loyalnetwork.ravenessentials.vanish.VanishCommand;
+import net.loyalnetwork.ravenessentials.util.CurrentDimensionArgument;
+import net.minecraft.server.level.ServerLevel;
 import net.neoforged.fml.ModContainer;
 
 /** Todos os comandos do mod. Comando novo: adicione aqui. */
@@ -39,6 +42,8 @@ public final class Commands {
 
     public static void registerAll(ModContainer container) {
         var commands = CoffeeLib.commands(container);
+        // Tipo de argumento do mod: dimensão com "~" para a atual (o /tp usa).
+        commands.argument(ServerLevel.class, new CurrentDimensionArgument());
 
         // chat
         commands.register(new ClearChat());
@@ -76,6 +81,7 @@ public final class Commands {
         commands.register(new Slime());
         commands.register(new Spawn());
         commands.register(new Teleport());
+        commands.register(new Back());
 
         // sistemas
         commands.register(new FlyCommand());

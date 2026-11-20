@@ -1,5 +1,7 @@
 package net.loyalnetwork.ravenessentials.vanish;
 
+import net.loyalnetwork.coffeelib.neoforge.CoffeeLib;
+import net.loyalnetwork.ravenessentials.RavenEssentials;
 import net.loyalnetwork.ravenessentials.core.RavenAttachments;
 import net.loyalnetwork.ravenessentials.core.RavenPermissions;
 import net.loyalnetwork.ravenessentials.util.Permissions;
@@ -24,6 +26,16 @@ import java.util.List;
 public final class Vanish {
 
     private Vanish() {
+    }
+
+    /**
+     * Registra a regra do vanish no diretório de jogadores da CoffeeLib: todo comando que recebe
+     * um jogador (deste mod ou de outro) deixa quem está em vanish fora do autocompletar e
+     * responde "não encontrado" ao nome dele, para quem não tem a permissão de ver.
+     */
+    public static void install() {
+        CoffeeLib.players().visibility(RavenEssentials.MODID, (viewer, target) ->
+                !(viewer instanceof ServerPlayer seer) || !(target instanceof ServerPlayer seen) || canSee(seer, seen));
     }
 
     /** Se é um jogador em vanish. Aceita qualquer entidade (ou null) para os eventos e mixins. */

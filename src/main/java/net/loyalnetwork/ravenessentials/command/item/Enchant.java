@@ -3,16 +3,15 @@ package net.loyalnetwork.ravenessentials.command.item;
 import net.loyalnetwork.coffeelib.api.command.annotation.Arg;
 import net.loyalnetwork.coffeelib.api.command.annotation.Command;
 import net.loyalnetwork.coffeelib.api.command.annotation.Default;
-import net.loyalnetwork.coffeelib.api.command.annotation.Suggest;
+import net.loyalnetwork.coffeelib.api.command.annotation.Registry;
 import net.loyalnetwork.coffeelib.api.command.exception.CommandException;
 import net.loyalnetwork.ravenessentials.core.RavenPermissions;
 import net.loyalnetwork.ravenessentials.util.Messages;
 import net.loyalnetwork.ravenessentials.util.Players;
-import net.loyalnetwork.ravenessentials.util.RegistryIds;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.enchantment.Enchantment;
 
-import java.util.Collection;
 
 public class Enchant {
 
@@ -22,7 +21,7 @@ public class Enchant {
     @Command(value = "enchant", permission = RavenPermissions.ENCHANT)
     void enchant(
             ServerPlayer player,
-            @Arg("enchantment") @Suggest(provider = "enchantments") String enchantmentId,
+            @Arg("enchantment") @Registry("enchantment") Holder<Enchantment> enchantment,
             @Arg("level") @Default("1") int level
     ) {
         if (level < 1 || level > MAX_LEVEL) {
@@ -30,15 +29,10 @@ public class Enchant {
         }
 
         var stack = Players.requireHeldItem(player);
-        var enchantment = RegistryIds.find(player.registryAccess(), Registries.ENCHANTMENT, enchantmentId, "encantamento");
 
         // Aplica diretamente, sem validar compatibilidade ou nível máximo vanilla.
         stack.enchant(enchantment, level);
 
-        Messages.send(player, "Encantamento aplicado: " + enchantmentId + " " + level);
-    }
-
-    Collection<String> enchantments() {
-        return RegistryIds.vanillaPaths(Registries.ENCHANTMENT);
+        Messages.send(player, "Encantamento aplicado: " + enchantment.getRegisteredName() + " " + level);
     }
 }

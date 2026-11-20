@@ -101,8 +101,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 
 dependencies {
-    compileOnly "com.github.RenanPlay13013.CoffeeLib:coffeelib-platform-neoforge-1.21.1:${coffeelib_version}"
-    runtimeOnly "com.github.RenanPlay13013.CoffeeLib:coffeelib-platform-neoforge-1.21.1:${coffeelib_version}"
+    implementation "com.github.RenanPlay13013.CoffeeLib:coffeelib-platform-neoforge-1.21.1:${coffeelib_version}"
 
     compileOnly 'org.hibernate.orm:hibernate-core:6.6.4.Final'
 

@@ -3,7 +3,9 @@ package net.loyalnetwork.ravenessentials.core;
 import net.loyalnetwork.coffeelib.neoforge.CoffeeLib;
 import net.loyalnetwork.ravenessentials.command.Commands;
 import net.loyalnetwork.ravenessentials.database.RavenDatabase;
+import net.loyalnetwork.ravenessentials.fly.FlightEvents;
 import net.loyalnetwork.ravenessentials.util.Permissions;
+import net.loyalnetwork.ravenessentials.vanish.Vanish;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 
@@ -17,7 +19,7 @@ public final class Bootstrap {
     }
 
     public static void start(IEventBus modEventBus, ModContainer container) {
-        // 1. Permissões antes dos comandos, para os nós manterem os padrões declarados aqui.
+        // 1. Permissões que nenhum comando declara (os nós de comando a CoffeeLib declara no registro).
         var permissions = CoffeeLib.permissions(container);
         permissions.declare(RavenPermissions.class);
         Permissions.init(permissions);
@@ -28,7 +30,15 @@ public final class Bootstrap {
         // 3. Banco e Hibernate.
         RavenDatabase.open(container);
 
-        // 4. Comandos (compilados para o Brigadier no RegisterCommandsEvent).
+        // 4. Serviços para os @Receive dos comandos: os da CoffeeLib (permissões, scheduler,
+        //    banco, jogadores) já vêm; os do mod entram aqui, antes dos comandos.
+        CoffeeLib.services(container).register(new RavenServices());
+
+        // 5. Sistemas que se ligam à CoffeeLib.
+        Vanish.install();
+        FlightEvents.install(permissions, CoffeeLib.scheduler(container));
+
+        // 6. Comandos (compilados para o Brigadier no RegisterCommandsEvent).
         Commands.registerAll(container);
     }
 }
