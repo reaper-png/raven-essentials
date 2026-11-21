@@ -1,6 +1,8 @@
 package net.loyalnetwork.ravenessentials.kit.menu;
 
 import net.loyalnetwork.coffeelib.api.menu.Menu;
+import net.loyalnetwork.coffeelib.api.menu.MenuClick;
+import net.loyalnetwork.coffeelib.api.menu.MenuClickType;
 import net.loyalnetwork.coffeelib.neoforge.menu.NeoForgeMenus;
 import net.loyalnetwork.ravenessentials.kit.application.KitClaimService;
 import net.loyalnetwork.ravenessentials.kit.application.KitOffer;
@@ -8,14 +10,22 @@ import net.loyalnetwork.ravenessentials.kit.domain.KitStatus;
 import net.loyalnetwork.ravenessentials.kit.menu.config.KitListMenuConfig;
 import net.loyalnetwork.ravenessentials.kit.menu.config.KitLore;
 import net.loyalnetwork.ravenessentials.kit.menu.config.KitsConfig;
-import net.loyalnetwork.ravenessentials.kit.menu.config.MenuAction;
+import net.loyalnetwork.ravenessentials.menu.MenuAction;
+import net.loyalnetwork.ravenessentials.menu.MenuItems;
+import net.loyalnetwork.ravenessentials.menu.Pages;
+import net.loyalnetwork.ravenessentials.menu.Placeholders;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /** A lista de kits do jogador, com o layout de {@code kits.yml} e páginas quando não cabem. */
 public final class KitListMenu {
+
+    private static final Set<MenuClickType> CLICKS = EnumSet.of(
+            MenuClickType.LEFT, MenuClickType.RIGHT, MenuClickType.SHIFT_LEFT, MenuClickType.SHIFT_RIGHT);
 
     private final KitClaimService claims;
     private final KitsConfig config;
@@ -63,7 +73,8 @@ public final class KitListMenu {
                 action -> act(player, mode, pages, action));
         for (int i = 0; i < pages.itemsOnPage(); i++) {
             KitOffer offer = offers.get(pages.first() + i);
-            menu.item(slots.get(i), icon(offer, mode, player), click -> select(player, mode, pages.current(), offer));
+            menu.item(slots.get(i), icon(offer, mode, player), CLICKS,
+                    click -> select(player, mode, pages.current(), offer, click));
         }
         menu.locked().open(player);
     }
@@ -94,9 +105,10 @@ public final class KitListMenu {
         }
     }
 
-    private void select(ServerPlayer player, KitListMode mode, int page, KitOffer offer) {
+    // No /kit view: esquerdo pega, direito mostra os itens. No /kit claim: qualquer clique pega.
+    private void select(ServerPlayer player, KitListMode mode, int page, KitOffer offer, MenuClick<ServerPlayer> click) {
         Runnable reopen = () -> open(player, mode, page);
-        if (mode == KitListMode.VIEW) {
+        if (mode == KitListMode.VIEW && click.isRight()) {
             preview.open(player, offer.kit(), reopen);
             return;
         }

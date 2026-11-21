@@ -1,4 +1,4 @@
-package net.loyalnetwork.ravenessentials.kit.menu.admin;
+package net.loyalnetwork.ravenessentials.menu;
 
 import net.loyalnetwork.coffeelib.api.scheduler.Scheduler;
 import net.loyalnetwork.coffeelib.api.scheduler.Task;

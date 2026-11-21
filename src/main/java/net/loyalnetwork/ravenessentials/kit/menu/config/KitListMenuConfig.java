@@ -3,6 +3,8 @@ package net.loyalnetwork.ravenessentials.kit.menu.config;
 import net.loyalnetwork.coffeelib.api.config.annotation.Comment;
 import net.loyalnetwork.coffeelib.api.config.annotation.Key;
 import net.loyalnetwork.coffeelib.api.config.annotation.Range;
+import net.loyalnetwork.ravenessentials.menu.MenuAction;
+import net.loyalnetwork.ravenessentials.menu.MenuItem;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -36,8 +38,8 @@ public class KitListMenuConfig {
     public KitLore lore = new KitLore();
 
     @Key("view-hint")
-    @Comment("O {action} no /kit view")
-    public String viewHint = "&eClique para ver os itens";
+    @Comment("O {action} no /kit view (botão esquerdo pega, direito mostra os itens)")
+    public String viewHint = "&aEsquerdo: pegar &8| &eDireito: ver os itens";
 
     @Key("claim-hint")
     @Comment("O {action} no /kit claim")

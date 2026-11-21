@@ -1,4 +1,4 @@
-package net.loyalnetwork.ravenessentials.kit.menu;
+package net.loyalnetwork.ravenessentials.menu;
 
 import net.loyalnetwork.coffeelib.api.placeholder.TextContext;
 
@@ -30,6 +30,16 @@ public final class Placeholders {
     /** Os mesmos valores, falando também de {@code subject} (o kit, por exemplo). */
     public Placeholders about(Object subject) {
         return new Placeholders(values, context.with(subject));
+    }
+
+    /**
+     * Estes valores por cima dos de {@code base} (os daqui ganham num nome repetido), com o
+     * contexto daqui, ou o de {@code base} se este não tiver.
+     */
+    public Placeholders mergedOver(Placeholders base) {
+        Map<String, String> copy = new HashMap<>(base.values);
+        copy.putAll(values);
+        return new Placeholders(Map.copyOf(copy), context.isEmpty() ? base.context : context);
     }
 
     public String apply(String text) {

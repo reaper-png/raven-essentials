@@ -1,6 +1,8 @@
 package net.loyalnetwork.ravenessentials.kit.menu.config;
 
 import net.loyalnetwork.coffeelib.api.config.annotation.Comment;
+import net.loyalnetwork.ravenessentials.menu.MenuAction;
+import net.loyalnetwork.ravenessentials.menu.MenuItem;
 
 import java.util.LinkedHashMap;
 import java.util.List;

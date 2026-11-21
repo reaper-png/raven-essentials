@@ -1,11 +1,9 @@
-package net.loyalnetwork.ravenessentials.kit.menu;
+package net.loyalnetwork.ravenessentials.menu;
 
 import net.loyalnetwork.coffeelib.api.menu.Menu;
 import net.loyalnetwork.coffeelib.api.text.TextFormatter;
 import net.loyalnetwork.coffeelib.neoforge.CoffeeLib;
 import net.loyalnetwork.ravenessentials.RavenEssentials;
-import net.loyalnetwork.ravenessentials.kit.menu.config.MenuAction;
-import net.loyalnetwork.ravenessentials.kit.menu.config.MenuItem;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -83,11 +81,16 @@ public final class MenuItems {
         return TEXT.parse(values.apply(text), viewer, values.context()).withStyle(style -> style.withItalic(false));
     }
 
+    /** O item com esse id ({@code minecraft:red_bed}); um id que não existe vira uma barreira, com aviso. */
+    public static ItemStack stack(String id) {
+        return new ItemStack(material(id));
+    }
+
     private static Item material(String id) {
         Optional<Item> item = Optional.ofNullable(ResourceLocation.tryParse(id))
                 .flatMap(BuiltInRegistries.ITEM::getOptional);
         if (item.isEmpty() || item.get() == Items.AIR) {
-            LOGGER.warning("Material inválido em kits.yml: " + id + " (usando barreira)");
+            LOGGER.warning("Material inválido na config: " + id + " (usando barreira)");
             return Items.BARRIER;
         }
         return item.get();

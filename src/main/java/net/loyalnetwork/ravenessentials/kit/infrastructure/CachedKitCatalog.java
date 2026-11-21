@@ -39,22 +39,35 @@ public final class CachedKitCatalog implements KitCatalog {
         this.scheduler = scheduler;
     }
 
-    /** Lê os kits do banco. Chame com o servidor já de pé (os itens precisam dos registros). */
-    public CompletableFuture<Void> load() {
-        return scheduler.onMain(repository.findAll())
-                .thenAccept(this::replaceWith)
-                .exceptionally(error -> {
-                    LOGGER.log(Level.SEVERE, "Falha ao carregar os kits", error);
-                    return null;
-                });
+    /** No boot: {@link #reload}, só registrando se falhar. */
+    public void load() {
+        reload().exceptionally(error -> {
+            LOGGER.log(Level.SEVERE, "Falha ao carregar os kits", error);
+            return null;
+        });
     }
 
-    private void replaceWith(List<KitEntity> rows) {
+    /**
+     * Lê os kits do banco de novo e troca os da memória. Espera antes as gravações que ainda
+     * estão na fila: senão leria a versão de antes delas e desfaria, na memória, uma mudança
+     * recém-feita. Chame com o servidor de pé (os itens precisam dos registros).
+     */
+    @Override
+    public CompletableFuture<Integer> reload() {
+        CompletableFuture<?>[] pending = writes.values().stream()
+                .map(write -> write.handle((ignored, error) -> null))
+                .toArray(CompletableFuture[]::new);
+        return scheduler.onMain(CompletableFuture.allOf(pending).thenCompose(ignored -> repository.findAll()))
+                .thenApply(this::replaceWith);
+    }
+
+    private int replaceWith(List<KitEntity> rows) {
         kits.clear();
         for (KitEntity row : rows) {
             restore(row);
         }
         LOGGER.info("Kits carregados: " + kits.size());
+        return kits.size();
     }
 
     // Um kit quebrado não impede os outros de carregar.

@@ -35,13 +35,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * {@code /kit}, {@code /kit view [jogador] [kit]}, {@code /kit claim [kit]},
- * {@code /kit give <jogador> <kit>}, {@code /kit reset <jogador> <kit>} e {@code /kit admin}.
+ * {@code /kit give <jogador> <kit>}, {@code /kit reset <jogador> <kit>}, {@code /kit refresh} e {@code /kit admin}.
  * Só lê os argumentos, abre menus e repassa para os serviços.
  */
 public class KitCommand {
+
+    private static final Logger LOGGER = Logger.getLogger("RavenEssentials.kits");
 
     // Argumento não informado. Nenhum id de kit começa com "-", nem nome de jogador.
     private static final String NONE = ViewRequest.NONE;
@@ -142,6 +146,18 @@ public class KitCommand {
                 .thenAccept(found -> Messages.send(source, found
                         ? "Cooldown do kit " + id + " zerado para " + name + "."
                         : name + " ainda não tinha pegado o kit " + id + "."));
+    }
+
+    // Lê do banco de novo: o que outro servidor da rede mudou (kits, quem pegou) passa a valer aqui.
+    @Command(value = "kit refresh", permission = RavenPermissions.KIT_REFRESH)
+    void refresh(CommandSourceStack source) {
+        administration.refresh()
+                .thenAccept(count -> Messages.send(source, "Kits recarregados do banco: " + count + "."))
+                .exceptionally(error -> {
+                    source.sendSystemMessage(Messages.error("Não deu para recarregar os kits: veja o log."));
+                    LOGGER.log(Level.SEVERE, "Falha no /kit refresh", error);
+                    return null;
+                });
     }
 
     @Command(value = "kit admin", permission = RavenPermissions.KIT_ADMIN)

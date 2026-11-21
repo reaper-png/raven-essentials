@@ -9,22 +9,28 @@ a partir da página salva em 2026-11-20.
 | Funções | 0/53 |
 | Future Ideas | 0/7 |
 
-> **Já existem no mod, mas estão desmarcados no cartão:** `/back`, `/lixeira` (no mod, `/trash`)
-> e os sete comandos de kit (veja [Kits](#kits)).
-> Os comandos feitos usam nomes em inglês no mod: `/anvil` (bigorna), `/hat` (chapeu),
-> `/compact` (compactar), `/colors` (cores), `/smelt` (derreter), `/ec` (echest),
-> `/nightvision` (luz), `/repair` (reparar) e `/gm` (gamemode).
+> A coluna "Feito no cartão" é a foto do Trello em 2026-11-20; ela não inclui o que foi feito
+> depois. As caixas abaixo são o estado atual no mod.
+
+> **Já existem no mod e agora estão marcados:** `/back`, `/lixeira` (`/trash`), os sete comandos
+> de kit, as homes e o sistema de teleporte. Os comandos feitos usam nomes em inglês no mod:
+> `/anvil` (bigorna), `/hat` (chapeu), `/compact` (compactar), `/colors` (cores), `/smelt`
+> (derreter), `/ec` (echest), `/nightvision` (luz), `/repair` (reparar) e `/gm` (gamemode).
 
 ---
 
-## Comandos que faltam
+## Comandos
 
 ### Homes
-- [ ] `/sethome` — Define uma home.
-- [ ] `/home` — Teleporta até uma home.
-- [ ] `/homes` — Mostra a lista de homes salvas.
-- [ ] `/delhome` — Deleta uma home.
-- [ ] `/publica` — Define uma home como pública.
+Feitos no mod (o cartão ainda pode estar desmarcado): o básico por comando, o resto no menu do `/homes`
+(botão direito numa home: mover, renomear, ícone, pública, apagar). Aparência e mensagens em
+`raven/essentials/homes.yml`; limite por `ravenessentials.homes.limit.<N>`.
+
+- [x] `/sethome` — Define uma home. (`/sethome [home]`; sem nome, `home`)
+- [x] `/home` — Teleporta até uma home. (`/home [home]`, ou `/home dono:home` para a pública de outro)
+- [x] `/homes` — Mostra a lista de homes salvas. (`/homes [jogador]`)
+- [x] `/delhome` — Deleta uma home. (`/delhome <home>`)
+- [x] `/publica` — Define uma home como pública. (`/homes` → botão direito → Pública)
 
 ### Warps
 - [ ] `/setwarp` — Define uma warp.
@@ -33,7 +39,7 @@ a partir da página salva em 2026-11-20.
 - [ ] `/delwarp` — Deleta uma warp.
 
 ### Kits
-Feitos por menu (ainda desmarcados no cartão): `/kit view` (ou `/kit`, `/kits`) lista os kits e
+Feitos no mod por menu (o cartão ainda pode estar desmarcado): `/kit view` (ou `/kit`, `/kits`) lista os kits e
 mostra os itens de cada um (`/kit view [jogador] <kit>` abre direto a prévia, também para
 outro jogador), `/kit claim [kit]` pega, `/kit give` dá por fora das regras, `/kit reset` zera o
 cooldown, e o `/kit admin` cria, edita (itens, ícone, nome, cooldown, acesso) e exclui. Aparência e mensagens em `raven/essentials/kits.yml`.
@@ -46,14 +52,28 @@ cooldown, e o `/kit admin` cria, edita (itens, ícone, nome, cooldown, acesso) e
 - [x] `/editarkit` — Edita um kit criado. (`/kit admin` → clique no kit)
 - [x] `/delkit` — Deleta um kit. (`/kit admin` → kit → Excluir)
 
+### Teleporte
+Feitos: `/tp` (coordenadas/dimensão), `/back` (último teleporte ou morte) e `/spawn` usam o
+`PlayerTracker` e o `Locations`; o `/back` guarda o local atual antes de voltar. Os pedidos e os
+teleportes para outros jogadores ficam em [Pedidos de teleporte](#pedidos-de-teleporte).
+
+- [x] `/tp` — Teleporta para coordenadas/dimensão. (`/tp <x> <y> <z> [dimensão]`)
+- [x] `/back` — Volta ao local anterior. (`/back`)
+- [x] `/spawn` — Teleporta ao spawn do mundo. (`/spawn`)
+
 ### Pedidos de teleporte
-- [ ] `/tpa` — Envia uma solicitação de teleporte.
-- [ ] `/tpaccept` — Aceita uma solicitação de teleporte.
-- [ ] `/tpdeny` — Rejeita uma solicitação de teleporte.
-- [ ] `/tpcancel` — Cancela uma solicitação de teleporte enviada.
-- [ ] `/tptoggle` — Desativa o recebimento de solicitações de teleporte.
-- [ ] `/tphere` — Teleporta um player até você.
-- [ ] `/tpall` — Teleporta todos os players.
+Feitos: os pedidos ficam pendentes por `request-seconds` e o alvo recebe botões de aceitar/negar no
+chat. O `/tptoggle` fica salvo no jogador (attachment `tp_disabled`). Aparência e mensagens em
+`raven/essentials/tpa.yml`; permissões `ravenessentials.tpa`, `.tpaccept`, `.tpdeny`, `.tpcancel`
+e `.tptoggle` para todos, e `/tphere`/`/tpall` para a staff (operadores por padrão).
+
+- [x] `/tpa` — Envia uma solicitação de teleporte.
+- [x] `/tpaccept` — Aceita uma solicitação de teleporte.
+- [x] `/tpdeny` — Rejeita uma solicitação de teleporte.
+- [x] `/tpcancel` — Cancela uma solicitação de teleporte enviada.
+- [x] `/tptoggle` — Desativa o recebimento de solicitações de teleporte.
+- [x] `/tphere` — Teleporta um player até você.
+- [x] `/tpall` — Teleporta todos os players.
 
 ### Administração
 - [ ] `/setspawn` — Define o spawn do servidor.
@@ -65,6 +85,20 @@ cooldown, e o `/kit admin` cria, edita (itens, ícone, nome, cooldown, acesso) e
 ### Informação
 - [ ] `/seen` — Visualiza as informações de um player.
 - [ ] `/estatisticas` — Mostra as estatísticas de um player.
+
+### Já feitos no mod (conferir no cartão)
+Estes já existem no mod, mas não estavam na lista. O nome do mod vai entre parênteses.
+
+- [x] `/lixeira` — Abre a lixeira. (`/trash`, `/disposal`)
+- [x] `/bigorna` — Abre uma bigorna. (`/anvil`)
+- [x] `/chapeu` — Coloca o item da mão na cabeça. (`/hat`)
+- [x] `/compactar` — Compacta os itens do inventário. (`/compact`)
+- [x] `/cores` — Mostra a lista de cores e formatações. (`/colors`)
+- [x] `/derreter` — Derrete os itens da mão. (`/smelt`)
+- [x] `/echest` — Abre o ender chest. (`/ec`)
+- [x] `/luz` — Liga/desliga a visão noturna. (`/nightvision`)
+- [x] `/reparar` — Repara o item da mão. (`/repair`)
+- [x] `/gamemode` — Muda o modo de jogo. (`/gm`)
 
 ---
 
@@ -143,9 +177,11 @@ cooldown, e o `/kit admin` cria, edita (itens, ícone, nome, cooldown, acesso) e
 ---
 
 ## O que já ajuda
-- **Homes e warps:** o `CoffeeLocation` e o `Locations` da CoffeeLib, mais o banco do mod.
-- **`/tpa` e similares:** o argumento `ServerPlayer` e o `@OrSelf`, que já respeitam o vanish.
+- **Warps:** o pacote `home` é quase o mesmo sistema (local salvo, menu, ir pela lista), só
+  sem dono e sem limite. O `Positions` já guarda a volta para o `/back`.
+- **Sistema de teleporte:** `TeleportService`/`TeleportRequests` em `teleport/application`,
+  config `raven/essentials/tpa.yml`, `TeleportToggle` no attachment `tp_disabled` e os comandos
+  em `teleport/command`. `/tphere` e `/tpall` respeitam o vanish e guardam o `/back`.
 - **`/seen`:** o `PlayerRepository.findByName` e o histórico do jogador (`firstJoin`, `lastJoin`, `playTime`).
-- **Contagem de homes por permissão:** o `permissions.number(...)` da CoffeeLib.
-- **Menus de homes, warps e afins:** o pacote `kit/menu` (config de menu em YAML, páginas,
-  placeholders, prompt por chat) serve de modelo.
+- **Qualquer menu novo:** o pacote `menu` (config de menu em YAML, páginas, placeholders,
+  prompt por chat, confirmação, botões), usado pelos kits e pelas homes.

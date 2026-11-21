@@ -5,6 +5,7 @@ import net.loyalnetwork.coffeelib.api.permission.PermissionManager;
 import net.loyalnetwork.coffeelib.api.scheduler.Scheduler;
 import net.loyalnetwork.coffeelib.neoforge.CoffeeLib;
 import net.loyalnetwork.coffeelib.neoforge.menu.NeoForgeMenus;
+import net.loyalnetwork.ravenessentials.cache.ExpiringCache;
 import net.loyalnetwork.ravenessentials.core.RavenPaths;
 import net.loyalnetwork.ravenessentials.database.RavenDatabase;
 import net.loyalnetwork.ravenessentials.kit.application.KitAdminService;
@@ -19,9 +20,9 @@ import net.loyalnetwork.ravenessentials.kit.menu.ClaimFeedback;
 import net.loyalnetwork.ravenessentials.kit.menu.KitListMenu;
 import net.loyalnetwork.ravenessentials.kit.menu.KitPlaceholders;
 import net.loyalnetwork.ravenessentials.kit.menu.KitPreviewMenu;
-import net.loyalnetwork.ravenessentials.kit.menu.admin.ChatPrompts;
 import net.loyalnetwork.ravenessentials.kit.menu.admin.KitAdminMenu;
 import net.loyalnetwork.ravenessentials.kit.menu.config.KitsConfig;
+import net.loyalnetwork.ravenessentials.menu.ChatPrompts;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -54,28 +55,27 @@ public final class KitModule {
     }
 
     /** Chame do construtor do mod, com o banco já aberto. */
-    public static KitModule install(ModContainer container, PermissionManager permissions, Scheduler scheduler) {
+    public static KitModule install(ModContainer container, PermissionManager permissions, Scheduler scheduler,
+                                    ChatPrompts prompts) {
         KitsConfig config = CoffeeLib.forMod(container, RavenPaths.ROOT).load(KitsConfig.class);
         ItemCodec codec = new ItemCodec(() -> ServerLifecycleHooks.getCurrentServer().registryAccess());
         CachedKitCatalog catalog = new CachedKitCatalog(
                 new KitRepository(RavenDatabase.sessions(), RavenDatabase.database()), codec, scheduler);
-        // Os registros passam pela cópia em memória de quem está online (para os placeholders).
+        // Os registros passam por um cache que expira sem uso (menu e placeholders na hora).
         CachedKitClaims history = new CachedKitClaims(
-                new KitClaimRepository(RavenDatabase.sessions(), RavenDatabase.database()));
+                new KitClaimRepository(RavenDatabase.sessions(), RavenDatabase.database()), ExpiringCache.DEFAULT_IDLE);
 
         InventoryDelivery delivery = new InventoryDelivery(() -> config.inventoryFull);
         KitClaimService claims = new KitClaimService(catalog, history, history, delivery, scheduler,
                 permissions::has, Clock.systemUTC());
-        KitAdminService administration = new KitAdminService(catalog, history, delivery, scheduler);
+        KitAdminService administration = new KitAdminService(catalog, history, history, delivery, scheduler);
 
         NeoForgeMenus menus = CoffeeLib.menus(container);
         ClaimFeedback feedback = new ClaimFeedback(config);
         KitPreviewMenu preview = new KitPreviewMenu(claims, config, menus, feedback);
-        ChatPrompts prompts = new ChatPrompts(scheduler);
 
         // Os itens precisam dos registros do servidor: os kits só carregam com ele de pé.
         NeoForge.EVENT_BUS.addListener((ServerStartedEvent event) -> catalog.load());
-        NeoForge.EVENT_BUS.register(prompts);
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent event) ->
                 history.preload(event.getEntity().getUUID()));
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedOutEvent event) ->

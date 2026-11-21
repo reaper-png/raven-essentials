@@ -4,7 +4,7 @@ import net.loyalnetwork.ravenessentials.kit.menu.config.KitListMenuConfig;
 
 /** O que um clique num kit da lista faz. */
 public enum KitListMode {
-    /** Abre a prévia ({@code /kit view}). */
+    /** {@code /kit view}: botão esquerdo pega, direito abre a prévia dos itens. */
     VIEW,
     /** Pega na hora ({@code /kit claim}). */
     CLAIM;

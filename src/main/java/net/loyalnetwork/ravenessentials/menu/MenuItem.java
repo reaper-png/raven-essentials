@@ -1,4 +1,4 @@
-package net.loyalnetwork.ravenessentials.kit.menu.config;
+package net.loyalnetwork.ravenessentials.menu;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ public class MenuItem {
     public MenuItem() {
     }
 
-    static MenuItem of(String material, String name, MenuAction action, List<Integer> slots) {
+    public static MenuItem of(String material, String name, MenuAction action, List<Integer> slots) {
         MenuItem item = new MenuItem();
         item.material = material;
         item.name = name;
@@ -28,7 +28,7 @@ public class MenuItem {
         return item;
     }
 
-    MenuItem withLore(String... lines) {
+    public MenuItem withLore(String... lines) {
         this.lore = new ArrayList<>(List.of(lines));
         return this;
     }

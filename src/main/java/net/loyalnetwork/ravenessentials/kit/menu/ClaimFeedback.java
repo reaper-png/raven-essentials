@@ -8,6 +8,7 @@ import net.loyalnetwork.ravenessentials.kit.domain.Kit;
 import net.loyalnetwork.ravenessentials.kit.domain.KitStatus;
 import net.loyalnetwork.ravenessentials.kit.menu.config.KitMessages;
 import net.loyalnetwork.ravenessentials.kit.menu.config.KitsConfig;
+import net.loyalnetwork.ravenessentials.menu.Placeholders;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 

@@ -9,7 +9,9 @@ import net.loyalnetwork.ravenessentials.kit.domain.KitId;
 import net.loyalnetwork.ravenessentials.kit.domain.KitItems;
 import net.loyalnetwork.ravenessentials.kit.menu.config.KitPreviewMenuConfig;
 import net.loyalnetwork.ravenessentials.kit.menu.config.KitsConfig;
-import net.loyalnetwork.ravenessentials.kit.menu.config.MenuAction;
+import net.loyalnetwork.ravenessentials.menu.MenuAction;
+import net.loyalnetwork.ravenessentials.menu.MenuItems;
+import net.loyalnetwork.ravenessentials.menu.Placeholders;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 

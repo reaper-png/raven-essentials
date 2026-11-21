@@ -7,6 +7,8 @@ import net.loyalnetwork.ravenessentials.kit.domain.Kit;
 import net.loyalnetwork.ravenessentials.kit.domain.KitException;
 import net.loyalnetwork.ravenessentials.kit.domain.KitId;
 import net.loyalnetwork.ravenessentials.kit.menu.KitTexts;
+import net.loyalnetwork.ravenessentials.menu.ChatPrompts;
+import net.loyalnetwork.ravenessentials.menu.ConfirmMenu;
 import net.loyalnetwork.ravenessentials.util.Messages;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;

@@ -1,6 +1,5 @@
-package net.loyalnetwork.ravenessentials.kit.menu;
+package net.loyalnetwork.ravenessentials.menu;
 
-import net.loyalnetwork.ravenessentials.kit.menu.config.MenuAction;
 
 /** Qual parte de uma lista cabe numa página do menu. */
 public final class Pages {

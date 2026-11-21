@@ -1,4 +1,4 @@
-package net.loyalnetwork.ravenessentials.kit.menu;
+package net.loyalnetwork.ravenessentials.menu;
 
 import org.junit.jupiter.api.Test;
 

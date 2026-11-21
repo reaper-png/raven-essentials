@@ -4,11 +4,15 @@ import net.loyalnetwork.coffeelib.neoforge.CoffeeLib;
 import net.loyalnetwork.ravenessentials.command.Commands;
 import net.loyalnetwork.ravenessentials.database.RavenDatabase;
 import net.loyalnetwork.ravenessentials.fly.FlightEvents;
+import net.loyalnetwork.ravenessentials.home.HomeModule;
 import net.loyalnetwork.ravenessentials.kit.KitModule;
+import net.loyalnetwork.ravenessentials.menu.ChatPrompts;
+import net.loyalnetwork.ravenessentials.teleport.TeleportModule;
 import net.loyalnetwork.ravenessentials.util.Permissions;
 import net.loyalnetwork.ravenessentials.vanish.Vanish;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.neoforge.common.NeoForge;
 
 /**
  * Ponto de entrada dos iniciadores. Sistema novo que precisa ser iniciado: chame aqui,
@@ -41,8 +45,14 @@ public final class Bootstrap {
         var scheduler = CoffeeLib.scheduler(container);
         FlightEvents.install(permissions, scheduler);
 
-        // 6. Kits (precisam do banco aberto). O módulo também é provedor dos @Receive do /kit.
-        services.register(KitModule.install(container, permissions, scheduler));
+        // 6. Kits, homes e pedidos de teleporte (os dois primeiros precisam do banco aberto). Os módulos
+        //    também são provedores dos @Receive dos comandos.
+        // Perguntas pelo chat dos menus (nome de kit, de home...): uma só, para ninguém ter duas abertas.
+        var prompts = new ChatPrompts(scheduler);
+        NeoForge.EVENT_BUS.register(prompts);
+        services.register(KitModule.install(container, permissions, scheduler, prompts));
+        services.register(HomeModule.install(container, permissions, scheduler, prompts));
+        services.register(TeleportModule.install(container, scheduler));
 
         // 7. Comandos (compilados para o Brigadier no RegisterCommandsEvent).
         Commands.registerAll(container);

@@ -3,6 +3,7 @@ package net.loyalnetwork.ravenessentials.kit.menu;
 import net.loyalnetwork.ravenessentials.kit.domain.Cooldown;
 import net.loyalnetwork.ravenessentials.kit.domain.Kit;
 import net.loyalnetwork.ravenessentials.kit.domain.KitStatus;
+import net.loyalnetwork.ravenessentials.menu.Placeholders;
 
 import java.time.Duration;
 

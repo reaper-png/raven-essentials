@@ -2,8 +2,8 @@ package net.loyalnetwork.ravenessentials.kit.menu.admin;
 
 import net.loyalnetwork.ravenessentials.kit.domain.Kit;
 import net.loyalnetwork.ravenessentials.kit.menu.KitTexts;
-import net.loyalnetwork.ravenessentials.kit.menu.MenuItems;
-import net.loyalnetwork.ravenessentials.kit.menu.Placeholders;
+import net.loyalnetwork.ravenessentials.menu.Buttons;
+import net.loyalnetwork.ravenessentials.menu.MenuItems;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -18,7 +18,7 @@ final class AdminIcons {
     }
 
     static ItemStack button(ServerPlayer viewer, Item item, String name, String... lore) {
-        return MenuItems.dress(new ItemStack(item), name, List.of(lore), Placeholders.NONE, viewer);
+        return Buttons.button(viewer, item, name, lore);
     }
 
     /** O kit com o resumo das regras, e {@code hint} no fim. */

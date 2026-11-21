@@ -1,6 +1,5 @@
-package net.loyalnetwork.ravenessentials.kit.menu;
+package net.loyalnetwork.ravenessentials.menu;
 
-import net.loyalnetwork.ravenessentials.kit.menu.config.MenuAction;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -4,6 +4,7 @@ import net.loyalnetwork.coffeelib.api.database.Database;
 import net.loyalnetwork.coffeelib.database.hibernate.CoffeeHibernate;
 import net.loyalnetwork.coffeelib.neoforge.CoffeeLib;
 import net.loyalnetwork.ravenessentials.core.RavenPaths;
+import net.loyalnetwork.ravenessentials.home.infrastructure.HomeEntity;
 import net.loyalnetwork.ravenessentials.kit.infrastructure.KitClaimEntity;
 import net.loyalnetwork.ravenessentials.kit.infrastructure.KitEntity;
 import net.neoforged.fml.ModContainer;
@@ -12,7 +13,8 @@ import org.hibernate.SessionFactory;
 /** Abre o banco e o Hibernate, e guarda os repositórios. Entidade nova: adicione em {@link #ENTITIES}. */
 public final class RavenDatabase {
 
-    private static final Class<?>[] ENTITIES = {PlayerEntity.class, KitEntity.class, KitClaimEntity.class};
+    private static final Class<?>[] ENTITIES = {PlayerEntity.class, KitEntity.class, KitClaimEntity.class,
+            HomeEntity.class};
 
     private static Database database;
     private static SessionFactory sessions;

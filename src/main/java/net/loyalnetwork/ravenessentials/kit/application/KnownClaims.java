@@ -13,4 +13,7 @@ import java.util.UUID;
 public interface KnownClaims {
 
     Optional<PlayerClaims> known(UUID player);
+
+    /** Esquece tudo o que está em memória: cada jogador volta a ser lido do banco. */
+    void forgetAll();
 }

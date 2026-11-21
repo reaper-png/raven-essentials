@@ -22,12 +22,15 @@ public final class KitAdminService {
 
     private final KitCatalog catalog;
     private final KitClaims claims;
+    private final KnownClaims known;
     private final KitDelivery delivery;
     private final Scheduler scheduler;
 
-    public KitAdminService(KitCatalog catalog, KitClaims claims, KitDelivery delivery, Scheduler scheduler) {
+    public KitAdminService(KitCatalog catalog, KitClaims claims, KnownClaims known, KitDelivery delivery,
+                           Scheduler scheduler) {
         this.catalog = catalog;
         this.claims = claims;
+        this.known = known;
         this.delivery = delivery;
         this.scheduler = scheduler;
     }
@@ -94,6 +97,15 @@ public final class KitAdminService {
         }
         delivery.deliver(target, kit.items());
         return kit;
+    }
+
+    /**
+     * O {@code /kit refresh}: lê do banco de novo os kits e esquece os registros em memória
+     * (o que outro servidor mudou passa a valer aqui). O futuro diz quantos kits há.
+     */
+    public CompletableFuture<Integer> refresh() {
+        known.forgetAll();
+        return catalog.reload();
     }
 
     /** Zera o cooldown de {@code player} para o kit. O futuro diz se ele já tinha pegado. */

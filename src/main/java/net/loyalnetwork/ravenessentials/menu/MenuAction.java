@@ -1,4 +1,4 @@
-package net.loyalnetwork.ravenessentials.kit.menu.config;
+package net.loyalnetwork.ravenessentials.menu;
 
 /** O que um item de menu faz ao ser clicado. Cada menu atende só as que fazem sentido nele. */
 public enum MenuAction {

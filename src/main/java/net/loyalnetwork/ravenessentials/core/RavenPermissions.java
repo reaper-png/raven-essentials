@@ -30,6 +30,13 @@ public final class RavenPermissions {
     public static final String KIT = "ravenessentials.kit";
     public static final String KIT_ADMIN = "ravenessentials.kit.admin";
     public static final String KIT_GIVE = "ravenessentials.kit.give";
+    public static final String KIT_REFRESH = "ravenessentials.kit.refresh";
+    public static final String HOME = "ravenessentials.home";
+    public static final String SETHOME = "ravenessentials.sethome";
+    public static final String DELHOME = "ravenessentials.delhome";
+    public static final String HOMES = "ravenessentials.homes";
+    /** Prefixo de {@code ravenessentials.homes.limit.<N>}, o limite de homes (declarado em faixa). */
+    public static final String HOMES_LIMIT = "ravenessentials.homes.limit";
     public static final String KIT_RESET = "ravenessentials.kit.reset";
     public static final String LIST = "ravenessentials.list";
     public static final String NIGHTVISION = "ravenessentials.nightvision";
@@ -44,6 +51,13 @@ public final class RavenPermissions {
     public static final String SPEED = "ravenessentials.speed";
     public static final String TITLE = "ravenessentials.title";
     public static final String TP = "ravenessentials.tp";
+    public static final String TPA = "ravenessentials.tpa";
+    public static final String TPACCEPT = "ravenessentials.tpaccept";
+    public static final String TPALL = "ravenessentials.tpall";
+    public static final String TPCANCEL = "ravenessentials.tpcancel";
+    public static final String TPDENY = "ravenessentials.tpdeny";
+    public static final String TPHERE = "ravenessentials.tphere";
+    public static final String TPTOGGLE = "ravenessentials.tptoggle";
     public static final String TRASH = "ravenessentials.trash";
 
     public static final String FLY = "ravenessentials.fly";
@@ -63,6 +77,12 @@ public final class RavenPermissions {
 
     @Permission(description = "Open a kit preview for another player (/kit view <player> <kit>)")
     public static final String KIT_VIEW_OTHERS = "ravenessentials.kit.view.others";
+
+    @Permission(description = "Have any number of homes")
+    public static final String HOMES_UNLIMITED = "ravenessentials.homes.unlimited";
+
+    @Permission(description = "See and go to other players' private homes")
+    public static final String HOME_OTHERS = "ravenessentials.home.others";
 
     @Permission(description = "See players who are vanished")
     public static final String VANISH_SEE = "ravenessentials.vanish.see";

@@ -17,6 +17,7 @@ public final class RavenAttachments {
     public static final Supplier<AttachmentType<Boolean>> VANISHED = flag("vanished");
     public static final Supplier<AttachmentType<Boolean>> GOD = flag("god");
     public static final Supplier<AttachmentType<Boolean>> FLY = flag("fly");
+    public static final Supplier<AttachmentType<Boolean>> TP_DISABLED = flag("tp_disabled");
 
     private RavenAttachments() {
     }
